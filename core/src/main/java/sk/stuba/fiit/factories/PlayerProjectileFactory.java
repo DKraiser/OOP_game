@@ -18,17 +18,9 @@ public class PlayerProjectileFactory implements Factory<PlayerProjectile>{
 
     @Override
     public PlayerProjectile create(Object ... direction) {
-        List<Effect> effects = new ArrayList<>();
         Vector2 directionVector = (Vector2) direction[0];
-        try {
-            for (Effect effect : projectileTemplate.getEffects())
-                effects.add(effect.clone());
-        } catch (RuntimeException e) {
-            Exception exception = new EmptyCollectionEnumeratingException(e.getMessage());
-            logger.error(exception.getMessage());
-        }
 
-        newProjectile = new PlayerProjectile(projectileTemplate.getName(), projectileTemplate.getDescription(), projectileTemplate.getTexture(), projectileTemplate.getHealth(), projectileTemplate.getMaxHealth(), effects, directionVector, projectileTemplate.getSpeed());
+        newProjectile = new PlayerProjectile(projectileTemplate.getName(), projectileTemplate.getDescription(), projectileTemplate.getTexture(), projectileTemplate.getHealth(), projectileTemplate.getMaxHealth(), directionVector, projectileTemplate.getSpeed());
 
         newProjectile.getSprite().setSize(0.5f,0.5f);
         newProjectile.getSprite().setOrigin(newProjectile.getSprite().getWidth() / 2, newProjectile.getSprite().getHeight() / 2);

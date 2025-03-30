@@ -20,11 +20,10 @@ public abstract class Projectile extends Entity {
 
     public void move(float deltaTime) {
         getSprite().translate(new Vector2(getDirection().x * speed * deltaTime, getDirection().y * speed * deltaTime));
-
     }
 
-    public Projectile(String name, String description, Texture texture, int health, int maxHealth, List<Effect> effects, Vector2 direction, float speed) {
-        super(name, description, texture, health, maxHealth, effects);
+    public Projectile(String name, String description, Texture texture, int health, int maxHealth, Vector2 direction, float speed) {
+        super(name, description, texture, health, maxHealth);
         this.direction = direction;
         this.speed = speed;
     }

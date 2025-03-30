@@ -1,7 +1,6 @@
 package sk.stuba.fiit.effects;
 
 import sk.stuba.fiit.entities.Entity;
-import sk.stuba.fiit.interfaces.Effectable;
 
 public class Effect implements Cloneable{
     private String name;
@@ -41,31 +40,31 @@ public class Effect implements Cloneable{
 
     public Effect clone() {
         return new Effect(getName(), getDescription(), getLevel(), isFinite(), getDuration(),
-            getRemainingTime(), (Effectable) getTarget(), getAffect(), getDisaffect());
+            getRemainingTime(), getTarget(), getAffect(), getDisaffect());
     }
 
     public Effect(String name, String description, int level, boolean isFinite, float duration,
-                  Effectable target, Runnable affect, Runnable disaffect) {
+                  Entity target, Runnable affect, Runnable disaffect) {
         this.name = name;
         this.description = description;
         this.level = level;
         this.isFinite = isFinite;
         this.duration = duration;
         this.remainingTime = duration;
-        this.target = (Entity)target;
+        this.target = target;
         this.affect = affect;
         this.disaffect = disaffect;
     }
 
     public Effect(String name, String description, int level, boolean isFinite, float duration,
-                  float remainingTime, Effectable target, Runnable affect, Runnable disaffect) {
+                  float remainingTime, Entity target, Runnable affect, Runnable disaffect) {
         this.name = name;
         this.description = description;
         this.level = level;
         this.isFinite = isFinite;
         this.duration = duration;
         this.remainingTime = remainingTime;
-        this.target = (Entity)target;
+        this.target = target;
         this.affect = affect;
         this.disaffect = disaffect;
     }

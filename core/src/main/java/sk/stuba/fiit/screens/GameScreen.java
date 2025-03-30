@@ -87,9 +87,7 @@ public class GameScreen implements Screen{
 
             projectileEnvironment.clear();
             if (tempProjectileEnvironment.size() > 0) {
-                for (Projectile projectile : tempProjectileEnvironment) {
-                    projectileEnvironment.add(projectile);
-                }
+                projectileEnvironment.addAll(tempProjectileEnvironment);
             }
         }
 

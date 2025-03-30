@@ -1,7 +1,6 @@
 package sk.stuba.fiit.factories;
 
 import sk.stuba.fiit.effects.Effect;
-import sk.stuba.fiit.interfaces.Effectable;
 
 public class EffectFactory {
     public Effect createRegenerationEffect(int level, boolean isFinite, float duration, Effectable target)

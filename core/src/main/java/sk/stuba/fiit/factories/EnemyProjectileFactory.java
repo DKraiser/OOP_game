@@ -13,11 +13,11 @@ public class EnemyProjectileFactory implements Factory<EnemyProjectile>{
     @Override
     public EnemyProjectile create(Object ... direction) {
         List<Effect> effects = new ArrayList<>();
-        for (Effect effect : projectileTemplate.getEffects())
+        for (Effect effect : projectileTemplate.getEffectHandler().getEffects())
             effects.add(effect.clone());
 
         return new EnemyProjectile(projectileTemplate.getName(), projectileTemplate.getDescription(), projectileTemplate.getTexture(),
-            projectileTemplate.getHealth(), projectileTemplate.getMaxHealth(), effects,
+            projectileTemplate.getHealth(), projectileTemplate.getMaxHealth(), projectileTemplate.getEffectHandler(),
             (Vector2) direction[0], projectileTemplate.getSpeed());
     }
 
