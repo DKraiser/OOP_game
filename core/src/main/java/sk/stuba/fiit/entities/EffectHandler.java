@@ -16,7 +16,7 @@ public abstract class EffectHandler {
 
     public void takeEffect(Effect effect) {
         effects.add(effect);
-        effect.getAffect().run();
+        effect.applyEffect();
     }
 
     public void updateEffects(float delta) {
