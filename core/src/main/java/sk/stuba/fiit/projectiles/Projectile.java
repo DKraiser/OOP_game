@@ -8,7 +8,7 @@ import sk.stuba.fiit.screens.GameScreen;
 
 import java.util.List;
 
-public abstract class Projectile extends Entity {
+public abstract class Projectile extends Entity implements Cloneable{
     private Vector2 direction;
     private float speed;
 
@@ -21,6 +21,9 @@ public abstract class Projectile extends Entity {
     public void move(float deltaTime) {
         getSprite().translate(new Vector2(getDirection().x * speed * deltaTime, getDirection().y * speed * deltaTime));
     }
+
+    @Override
+    public abstract Projectile clone();
 
     public Projectile(String name, String description, Texture texture, int health, int maxHealth, Vector2 direction, float speed) {
         super(name, description, texture, health, maxHealth);

@@ -2,17 +2,12 @@ package sk.stuba.fiit.factories;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Logger;
-import sk.stuba.fiit.effects.Effect;
-import sk.stuba.fiit.exceptions.EmptyCollectionEnumeratingException;
 import sk.stuba.fiit.projectiles.PlayerProjectile;
 import sk.stuba.fiit.projectiles.Projectile;
 import sk.stuba.fiit.screens.GameScreen;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class PlayerProjectileFactory implements Factory<PlayerProjectile>{
-    private final Projectile projectileTemplate;
+    private final PlayerProjectile projectileTemplate;
     private PlayerProjectile newProjectile;
     private Logger logger;
 
@@ -20,7 +15,7 @@ public class PlayerProjectileFactory implements Factory<PlayerProjectile>{
     public PlayerProjectile create(Object ... direction) {
         Vector2 directionVector = (Vector2) direction[0];
 
-        newProjectile = new PlayerProjectile(projectileTemplate.getName(), projectileTemplate.getDescription(), projectileTemplate.getTexture(), projectileTemplate.getHealth(), projectileTemplate.getMaxHealth(), directionVector, projectileTemplate.getSpeed());
+        newProjectile = (PlayerProjectile) projectileTemplate.clone();
 
         newProjectile.getSprite().setSize(0.5f,0.5f);
         newProjectile.getSprite().setOrigin(newProjectile.getSprite().getWidth() / 2, newProjectile.getSprite().getHeight() / 2);
@@ -37,7 +32,7 @@ public class PlayerProjectileFactory implements Factory<PlayerProjectile>{
     }
 
     public PlayerProjectileFactory(Projectile projectileTemplate) {
-        this.projectileTemplate = projectileTemplate;
+        this.projectileTemplate = (PlayerProjectile) projectileTemplate;
         logger = new Logger("PlayerProjectileFactory", Logger.DEBUG);
     }
 }

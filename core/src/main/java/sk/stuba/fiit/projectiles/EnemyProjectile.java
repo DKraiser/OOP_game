@@ -30,8 +30,9 @@ public class EnemyProjectile extends Projectile implements Fightable {
             die();
     }
 
+    @Override
     public Projectile clone() {
-        return new EnemyProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), this.getEffectHandler(), this.getDirection(), this.getSpeed());
+        return new EnemyProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), this.getEffectHandler().clone(), null, this.getSpeed());
     }
 
     public EnemyProjectile(String name, String description, Texture texture, int health, int maxHealth, EffectHandler effectHandler, Vector2 direction, float speed)

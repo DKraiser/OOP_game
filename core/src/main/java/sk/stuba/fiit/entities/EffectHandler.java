@@ -5,7 +5,7 @@ import sk.stuba.fiit.effects.Effect;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class EffectHandler {
+public class EffectHandler implements Cloneable {
     private List<Effect> effects;
 
     public List<Effect> getEffects() { return effects; }
@@ -21,6 +21,22 @@ public abstract class EffectHandler {
 
     public void updateEffects(float delta) {
 
+    }
+
+    @Override
+    public EffectHandler clone()
+    {
+        EffectHandler newEffectHandler = new EffectHandler();
+        List<Effect> newEffects = new ArrayList<>();
+
+        if (effects.size() > 0) {
+            for (Effect effect : getEffects()) {
+                newEffects.add(effect.clone());
+            }
+        }
+        newEffectHandler.setEffects(newEffects);
+
+        return newEffectHandler;
     }
 
     public EffectHandler() {
