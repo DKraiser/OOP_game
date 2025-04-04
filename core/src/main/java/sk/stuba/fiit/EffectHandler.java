@@ -1,4 +1,4 @@
-package sk.stuba.fiit.entities;
+package sk.stuba.fiit;
 
 import sk.stuba.fiit.effects.Effect;
 

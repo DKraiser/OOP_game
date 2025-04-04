@@ -3,19 +3,18 @@ package sk.stuba.fiit.projectiles;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import sk.stuba.fiit.effects.Effect;
-import sk.stuba.fiit.entities.EffectHandler;
-import sk.stuba.fiit.interfaces.Fightable;
+import sk.stuba.fiit.EffectHandler;
+import sk.stuba.fiit.interfaces.Damageable;
 
-public class EnemyProjectile extends Projectile implements Fightable {
+public class EnemyProjectile extends Projectile implements Damageable {
     private EffectHandler effectHandler;
 
     public EffectHandler getEffectHandler() { return effectHandler; }
 
     public void setEffectHandler(EffectHandler effectHandler) { this.effectHandler = effectHandler; }
 
-    @Override
-    public void attack(Fightable target, int damage) {
-        target.takeDamage(damage);
+    public void attack(Damageable target, int damage) {
+        getAttacker().attack(target, damage);
     }
 
     @Override

@@ -9,10 +9,22 @@ import java.util.List;
 public class PlayerProjectile extends Projectile implements Cloneable{
     @Override
     public Projectile clone() {
-        return new PlayerProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), null, this.getSpeed());
+        Projectile clone = new PlayerProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), null, this.getSpeed());
+        clone.getSprite().set(this.getSprite());
+        return clone;
     }
 
     public PlayerProjectile(String name, String description, Texture texture, int health, int maxHealth, Vector2 direction, float speed) {
         super(name, description, texture, health, maxHealth, direction, speed);
+    }
+
+    @Override
+    public void takeDamage(int damage) {
+        die();
+    }
+
+    @Override
+    public void die() {
+
     }
 }
