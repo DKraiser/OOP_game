@@ -1,4 +1,4 @@
-package sk.stuba.fiit.factories;
+package sk.stuba.fiit.factories.projectilefactories;
 
 import com.badlogic.gdx.math.Vector2;
 import sk.stuba.fiit.projectiles.EnemyProjectile;
@@ -12,13 +12,6 @@ public class EnemyProjectileFactory extends ProjectileFactory {
     @Override
     public Projectile create(Object ... direction) {
         super.create(direction);
-
-        List<Effect> effects = new ArrayList<>();
-        for (Effect effect : ((EnemyProjectile) projectileTemplate).getEffectHandler().getEffects()) {
-            effects.add(effect.clone());
-            effect.setTarget(newProjectile);
-        }
-        
         return newProjectile;
     }
 

@@ -1,7 +1,8 @@
-package sk.stuba.fiit.factories;
+package sk.stuba.fiit.factories.projectilefactories;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Logger;
+import sk.stuba.fiit.interfaces.Factory;
 import sk.stuba.fiit.projectiles.Projectile;
 
 public class ProjectileFactory implements Factory<Projectile> {
@@ -10,7 +11,7 @@ public class ProjectileFactory implements Factory<Projectile> {
     protected Vector2 directionVector;
     protected float rotation;
     protected float radiusOfAttacker;
-    protected  Vector2 positionOfAttacker;
+    protected Vector2 positionOfAttacker;
     protected final Logger logger;
 
     public void setPositionOfAttacker(Vector2 positionOfAttacker) {

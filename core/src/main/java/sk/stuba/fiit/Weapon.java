@@ -2,13 +2,13 @@ package sk.stuba.fiit;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
-import sk.stuba.fiit.factories.ProjectileFactory;
+import sk.stuba.fiit.factories.projectilefactories.ProjectileFactory;
 import sk.stuba.fiit.projectiles.Projectile;
 
 import java.util.Collection;
 
-public class Weapon extends GameObject {
-    private ProjectileFactory projectileFactory;
+public class Weapon extends GameObject implements Cloneable {
+    private final ProjectileFactory projectileFactory;
 
     public void update(Vector2 position, float radius)
     {

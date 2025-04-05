@@ -6,6 +6,9 @@ import sk.stuba.fiit.effects.Effect;
 import sk.stuba.fiit.EffectHandler;
 import sk.stuba.fiit.interfaces.Damageable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class EnemyProjectile extends Projectile implements Damageable {
     private EffectHandler effectHandler;
 
@@ -31,13 +34,25 @@ public class EnemyProjectile extends Projectile implements Damageable {
 
     @Override
     public Projectile clone() {
-        return new EnemyProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), this.getEffectHandler().clone(), null, this.getSpeed());
+        EnemyProjectile clone = new EnemyProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), null, this.getSpeed());
+        clone.getSprite().set(this.getSprite());
+
+
+        List<Effect> clonedEffects = new ArrayList<>();
+        if (!this.getEffectHandler().getEffects().isEmpty()) {
+            for (Effect effect : this.getEffectHandler().getEffects()) {
+                clonedEffects.add(effect.clone());
+                clonedEffects.getLast().setTarget(clone);
+            }
+            clone.getEffectHandler().setEffects(clonedEffects);
+        }
+        return clone;
     }
 
-    public EnemyProjectile(String name, String description, Texture texture, int health, int maxHealth, EffectHandler effectHandler, Vector2 direction, float speed)
+    public EnemyProjectile(String name, String description, Texture texture, int health, int maxHealth, Vector2 direction, float speed)
     {
         super(name, description, texture, health, maxHealth, direction, speed);
-        this.effectHandler = effectHandler;
+        this.effectHandler = new EffectHandler();
     }
 
     public void takeEffect(Effect effect) {

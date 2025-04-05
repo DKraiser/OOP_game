@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Logger;
 import sk.stuba.fiit.Weapon;
 import sk.stuba.fiit.effects.Effect;
+import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
 import sk.stuba.fiit.strategies.DirectionRangedAttackingStrategy;
 import sk.stuba.fiit.EffectHandler;
 import sk.stuba.fiit.entities.Entity;
@@ -41,11 +42,17 @@ public class Player extends Entity implements Damageable {
             effect.tickEffect(delta);
     }
 
-    public Player(String name, String description, Texture texture, int health, int maxHealth, int balance, Weapon weapon) {
+    public Player(String name, String description, Texture texture, float size, Vector2 position, int health, int maxHealth, int balance, WeaponFactory weaponFactory) {
         super(name, description, texture, health, maxHealth);
+        getSprite().setSize(size, size);
+        getSprite().setPosition(new Vector2(position).sub(new Vector2(getSprite().getWidth(), getSprite().getHeight()).scl(0.5f)));
+
+        weaponFactory.setPositionOfAttacker(position);
+        weaponFactory.setRadiusOfAttacker(getSprite().getHeight() / 2);
+        this.weapon = weaponFactory.create();
+
         this.effectHandler = new EffectHandler();
         this.balance = balance;
-        this.weapon = weapon;
 
         rangedAttacking = new DirectionRangedAttackingStrategy();
         logger = new Logger("Player", Logger.INFO);

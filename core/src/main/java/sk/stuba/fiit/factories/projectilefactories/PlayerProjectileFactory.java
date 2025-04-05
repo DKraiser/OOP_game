@@ -1,8 +1,7 @@
-package sk.stuba.fiit.factories;
+package sk.stuba.fiit.factories.projectilefactories;
 
 import com.badlogic.gdx.math.Vector2;
 import sk.stuba.fiit.projectiles.Projectile;
-import sk.stuba.fiit.screens.GameScreen;
 
 public class PlayerProjectileFactory extends ProjectileFactory {
     @Override
