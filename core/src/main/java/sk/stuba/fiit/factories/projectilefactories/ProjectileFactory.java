@@ -38,7 +38,7 @@ public class ProjectileFactory implements Factory<Projectile> {
         if (directionVector.x < 0) rotation += (float)Math.PI;
         newProjectile.getSprite().setRotation((float)(rotation * 180 / Math.PI));
 
-        newProjectile.getSprite().setPosition(new Vector2(positionOfAttacker.x, positionOfAttacker.y).add(directionVector.scl(radiusOfAttacker + newProjectile.getSprite().getHeight() / 2)).sub(new Vector2(newProjectile.getSprite().getWidth() / 2, newProjectile.getSprite().getHeight() / 2)));
+        newProjectile.getSprite().setPosition(new Vector2(positionOfAttacker).add(directionVector.scl(radiusOfAttacker + newProjectile.getSprite().getHeight() / 2)).sub(new Vector2(newProjectile.getSprite().getWidth() / 2, newProjectile.getSprite().getHeight() / 2)));
 
         log();
 

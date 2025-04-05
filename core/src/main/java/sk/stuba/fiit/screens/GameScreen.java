@@ -13,7 +13,10 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import sk.stuba.fiit.GameObject;
 import sk.stuba.fiit.MyGame;
 import sk.stuba.fiit.Weapon;
+import sk.stuba.fiit.entities.Spawner;
 import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.factories.enemyfactories.AsteroidSpawnerFactory;
+import sk.stuba.fiit.factories.enemyfactories.SpawnerFactory;
 import sk.stuba.fiit.factories.weaponfactories.AsteroidEnemyWeaponFactory;
 import sk.stuba.fiit.factories.weaponfactories.BasicPlayerWeaponFactory;
 import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
@@ -21,6 +24,7 @@ import sk.stuba.fiit.projectiles.Projectile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class GameScreen implements Screen{
     public static final float screenWidth = 8;
@@ -34,9 +38,15 @@ public class GameScreen implements Screen{
     private Logger logger;
 
     private Player player;
+    private WeaponFactory playerWeaponFactory;
     private Vector3 touchPoint;
+
     List<Projectile> projectileEnvironment;
     List<Projectile> tempProjectileEnvironment;
+    List<Spawner> spawnerEnvironment;
+    List<Spawner> tempSpawnerEnvironment;
+
+    private SpawnerFactory asteroidSpawnerFactory;
 
     public GameScreen(Game game) {
         this.game = game;
@@ -49,11 +59,15 @@ public class GameScreen implements Screen{
         camera.position.set(screenWidth / 2, screenHeight / 2, 0);
         camera.update();
 
-        WeaponFactory playerWeaponFactory = new AsteroidEnemyWeaponFactory();
+        playerWeaponFactory = new BasicPlayerWeaponFactory();
         player = new Player("P", "Player", new Texture("earth.png"), 1, new Vector2(screenWidth / 2, screenHeight / 2), 5, 5, 0, playerWeaponFactory);
+
+        asteroidSpawnerFactory = new AsteroidSpawnerFactory();
 
         projectileEnvironment = new ArrayList<Projectile>();
         tempProjectileEnvironment = new ArrayList<Projectile>();
+        spawnerEnvironment = new ArrayList<Spawner>();
+        tempSpawnerEnvironment = new ArrayList<Spawner>();
 
         background = new GameObject("","", new Texture("space_background.jpg"));
         background.getSprite().setSize(screenWidth, screenHeight);
@@ -88,6 +102,10 @@ public class GameScreen implements Screen{
                 projectileEnvironment.addAll(tempProjectileEnvironment);
             }
         }
+        if (!spawnerEnvironment.isEmpty())
+            for (Spawner spawner : spawnerEnvironment) {
+                spawner.getSprite().draw(batch);
+            }
 
         batch.end();
         camera.update();
@@ -102,6 +120,15 @@ public class GameScreen implements Screen{
         else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
             player.getSprite().setPosition(new Vector2(touchPoint.x - player.getSprite().getWidth() / 2, touchPoint.y - player.getSprite().getHeight() / 2));
             player.getWeapon().update(new Vector2(player.getSprite().getPosition()).add(new Vector2(player.getSprite().getWidth() / 2, player.getSprite().getHeight() / 2)), player.getSprite().getHeight() / 2);
+        }
+        else if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            spawnerEnvironment.add(asteroidSpawnerFactory.create());
+            Random random = new Random();
+            spawnerEnvironment.getLast().getSprite().setPosition(new Vector2(random.nextFloat(0, screenWidth), random.nextFloat(0, screenHeight)));
+            spawnerEnvironment.getLast().getWeapon().update(new Vector2(spawnerEnvironment.getLast().getSprite().getPosition()), spawnerEnvironment.getLast().getSprite().getHeight() / 2);
+        }
+        else if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {
+            spawnerEnvironment.getLast().attack(player, projectileEnvironment);
         }
     }
 
