@@ -83,4 +83,8 @@ public class Player extends Entity implements Damageable {
     public void attack(Vector2 direction, List<Projectile> projectileEnvironment) {
         rangedAttacking.attack(direction, projectileEnvironment, weapon);
     }
+
+    public void onEnemyKilled(int killedEnemyPrice) {
+        setBalance(getBalance() + killedEnemyPrice);
+    }
 }

@@ -20,6 +20,7 @@ import sk.stuba.fiit.MyGame;
 import sk.stuba.fiit.Weapon;
 import sk.stuba.fiit.entities.Spawner;
 import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.events.EnemyKilledEvent;
 import sk.stuba.fiit.factories.enemyfactories.AsteroidSpawnerFactory;
 import sk.stuba.fiit.factories.enemyfactories.SpawnerFactory;
 import sk.stuba.fiit.factories.weaponfactories.AsteroidEnemyWeaponFactory;
@@ -73,6 +74,8 @@ public class GameScreen implements Screen{
         playerWeaponFactory = new BasicPlayerWeaponFactory();
         player = new Player("P", "Player", new Texture("earth.png"), 1, new Vector2(screenWidth / 2, screenHeight / 2), 5, 5, 0, playerWeaponFactory);
 
+        EnemyKilledEvent.setPlayer(player);
+
         asteroidSpawnerFactory = new AsteroidSpawnerFactory();
 
         projectileEnvironment = new ArrayList<Projectile>();
@@ -105,6 +108,12 @@ public class GameScreen implements Screen{
         batch.begin();
         background.getSprite().draw(batch);
         player.getSprite().draw(batch);
+
+        for (Spawner s : spawnerEnvironment)
+        {
+            s.getTimer().tick(deltaTime);
+            s.attack(player, projectileEnvironment);
+        }
 
         if (projectileEnvironment.size() > 0) {
             tempProjectileEnvironment.clear();

@@ -19,7 +19,7 @@ public class AsteroidEnemyWeaponFactory extends WeaponFactory {
 
     @Override
     public void adjustProjectileTemplate() {
-        projectileTemplate = new EnemyProjectile("", "", new Texture("asteroid.png"), 1, 1, null, 10f, 1);
+        projectileTemplate = new EnemyProjectile("", "", new Texture("asteroid.png"), 1, 1, null, 3f, 1, 3);
         projectileTemplate.getSprite().setSize(0.8f,0.8f);
         projectileTemplate.getSprite().setOrigin(projectileTemplate.getSprite().getWidth() / 2, projectileTemplate.getSprite().getHeight() / 2);
 
