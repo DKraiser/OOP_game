@@ -69,7 +69,7 @@ public class Player extends Entity implements Damageable {
     @Override
     public void takeDamage(int damage) {
         setHealth(getHealth() - damage);
-        logger.info("Get " + damage + " damage");
+        logger.info("Get " + damage + " damage\n" + getHealth() + " health points left");
         if (getHealth() <= 0) {
             die();
         }

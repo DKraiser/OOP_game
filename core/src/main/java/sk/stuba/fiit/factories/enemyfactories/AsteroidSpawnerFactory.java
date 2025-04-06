@@ -3,7 +3,6 @@ package sk.stuba.fiit.factories.enemyfactories;
 import com.badlogic.gdx.graphics.Texture;
 import sk.stuba.fiit.entities.Spawner;
 import sk.stuba.fiit.factories.weaponfactories.AsteroidEnemyWeaponFactory;
-import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
 
 public class AsteroidSpawnerFactory extends SpawnerFactory{
     public AsteroidSpawnerFactory() {

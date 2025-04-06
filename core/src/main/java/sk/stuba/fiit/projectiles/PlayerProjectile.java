@@ -9,15 +9,15 @@ import java.util.List;
 public class PlayerProjectile extends Projectile implements Cloneable{
     @Override
     public Projectile clone() {
-        Projectile clone = new PlayerProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), null, this.getSpeed());
+        Projectile clone = new PlayerProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), null, this.getSpeed(), this.getDamage());
         clone.getSprite().set(this.getSprite());
         clone.setCollider(this.getCollider().clone());
 
         return clone;
     }
 
-    public PlayerProjectile(String name, String description, Texture texture, int health, int maxHealth, Vector2 direction, float speed) {
-        super(name, description, texture, health, maxHealth, direction, speed);
+    public PlayerProjectile(String name, String description, Texture texture, int health, int maxHealth, Vector2 direction, float speed, int damage) {
+        super(name, description, texture, health, maxHealth, direction, speed, damage);
     }
 
     public PlayerProjectile() {
@@ -25,12 +25,8 @@ public class PlayerProjectile extends Projectile implements Cloneable{
     }
 
     @Override
-    public void takeDamage(int damage) {
-        die();
-    }
+    public void takeDamage(int damage) { }
 
     @Override
-    public void die() {
-
-    }
+    public void die() { }
 }

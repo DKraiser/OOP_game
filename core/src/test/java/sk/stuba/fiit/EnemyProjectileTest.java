@@ -19,7 +19,7 @@ public class EnemyProjectileTest {
     @BeforeEach
     public void setUp() {
         Texture mockTexture = new Texture("empty.png");
-        enemyProjectile = new EnemyProjectile("Enemy Projectile", "Enemy's projectile", mockTexture, 100, 100, new Vector2(1, 0), 10.0f);
+        enemyProjectile = new EnemyProjectile("Enemy Projectile", "Enemy's projectile", mockTexture, 100, 100, new Vector2(1, 0), 10.0f, 1);
         mockTarget = Mockito.mock(Damageable.class);
     }
 

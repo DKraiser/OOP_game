@@ -16,7 +16,7 @@ public class PlayerProjectileTest {
     @BeforeEach
     public void setUp() {
         Texture mockTexture = new Texture("empty.png");
-        playerProjectile = new PlayerProjectile("Player Projectile", "Player's special projectile", mockTexture, 100, 100, new Vector2(1, 0), 10.0f);
+        playerProjectile = new PlayerProjectile("Player Projectile", "Player's special projectile", mockTexture, 100, 100, new Vector2(1, 0), 10.0f, 1);
     }
 
     @Test

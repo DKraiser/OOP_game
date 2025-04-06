@@ -34,7 +34,7 @@ public class EnemyProjectile extends Projectile implements Damageable {
 
     @Override
     public Projectile clone() {
-        EnemyProjectile clone = new EnemyProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), null, this.getSpeed());
+        EnemyProjectile clone = new EnemyProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), null, this.getSpeed(), this.getDamage());
         clone.getSprite().set(this.getSprite());
         clone.setCollider(this.getCollider().clone());
 
@@ -49,9 +49,9 @@ public class EnemyProjectile extends Projectile implements Damageable {
         return clone;
     }
 
-    public EnemyProjectile(String name, String description, Texture texture, int health, int maxHealth, Vector2 direction, float speed)
+    public EnemyProjectile(String name, String description, Texture texture, int health, int maxHealth, Vector2 direction, float speed, int damage)
     {
-        super(name, description, texture, health, maxHealth, direction, speed);
+        super(name, description, texture, health, maxHealth, direction, speed, damage);
         this.effectHandler = new EffectHandler();
     }
 

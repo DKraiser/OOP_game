@@ -25,6 +25,8 @@ import sk.stuba.fiit.factories.enemyfactories.SpawnerFactory;
 import sk.stuba.fiit.factories.weaponfactories.AsteroidEnemyWeaponFactory;
 import sk.stuba.fiit.factories.weaponfactories.BasicPlayerWeaponFactory;
 import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
+import sk.stuba.fiit.projectiles.EnemyProjectile;
+import sk.stuba.fiit.projectiles.PlayerProjectile;
 import sk.stuba.fiit.projectiles.Projectile;
 
 import java.util.ArrayList;
@@ -45,6 +47,7 @@ public class GameScreen implements Screen{
     private Player player;
     private WeaponFactory playerWeaponFactory;
     private Vector3 touchPoint;
+    private Random random;
 
     List<Projectile> projectileEnvironment;
     List<Projectile> tempProjectileEnvironment;
@@ -56,6 +59,8 @@ public class GameScreen implements Screen{
 
     public GameScreen(Game game) {
         this.game = game;
+        random = new Random();
+        random.setSeed(System.currentTimeMillis());
 
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         logger = new Logger("GameScreen", Application.LOG_DEBUG);
@@ -74,6 +79,15 @@ public class GameScreen implements Screen{
         tempProjectileEnvironment = new ArrayList<Projectile>();
         spawnerEnvironment = new ArrayList<Spawner>();
         tempSpawnerEnvironment = new ArrayList<Spawner>();
+        for (int i = 0; i < 4; i++)
+        {
+            spawnerEnvironment.add(asteroidSpawnerFactory.create());
+            float x = random.nextFloat(-screenWidth / 2, screenWidth / 2);
+            float y = (float)(Math.sqrt(Math.pow(1.3f * screenWidth / 2, 2) - Math.pow(x, 2)) * Math.pow(-1, random.nextInt(0, 2)));
+            spawnerEnvironment.getLast().getSprite().setPosition(new Vector2(x + screenWidth / 2, y + screenHeight / 2));
+            spawnerEnvironment.getLast().getWeapon().update(new Vector2(spawnerEnvironment.getLast().getSprite().getPosition()), spawnerEnvironment.getLast().getSprite().getHeight() / 2);
+            logger.info("Spawner: " + i + "position: " + spawnerEnvironment.getLast().getSprite().getPosition());
+        }
         shapeRenderer = new ShapeRenderer();
 
         background = new GameObject("","", new Texture("space_background.jpg"));
@@ -103,6 +117,25 @@ public class GameScreen implements Screen{
                 if (Math.abs(projectile.getSprite().getPosition().x - screenWidth / 2) > screenWidth / 2 * 1.5f) {
                     tempProjectileEnvironment.remove(projectile);
                 }
+
+                if (projectile instanceof EnemyProjectile && projectile.getCollider().overlaps(player.getCollider())) {
+                    projectile.getAttacker().attack(player, projectile.getDamage());
+                    tempProjectileEnvironment.remove(projectile);
+                }
+
+                if (projectile instanceof PlayerProjectile) {
+                    for (Projectile enemyProjectile : projectileEnvironment) {
+                        if (enemyProjectile instanceof EnemyProjectile && projectile.getCollider().overlaps(enemyProjectile.getCollider())) {
+                            projectile.getAttacker().attack(enemyProjectile, projectile.getDamage());
+                            tempProjectileEnvironment.remove(projectile);
+                        }
+                    }
+                }
+
+            }
+            for (Projectile projectile : projectileEnvironment) {
+                if (projectile.getHealth() <= 0)
+                    tempProjectileEnvironment.remove(projectile);
             }
 
             projectileEnvironment.clear();
@@ -110,11 +143,11 @@ public class GameScreen implements Screen{
                 projectileEnvironment.addAll(tempProjectileEnvironment);
             }
         }
-        if (!spawnerEnvironment.isEmpty())
+        if (!spawnerEnvironment.isEmpty()) {
             for (Spawner spawner : spawnerEnvironment) {
                 spawner.getSprite().draw(batch);
             }
-
+        }
         batch.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -137,14 +170,10 @@ public class GameScreen implements Screen{
             player.getSprite().setPosition(new Vector2(touchPoint.x - player.getSprite().getWidth() / 2, touchPoint.y - player.getSprite().getHeight() / 2));
             player.getWeapon().update(new Vector2(player.getSprite().getPosition()).add(new Vector2(player.getSprite().getWidth() / 2, player.getSprite().getHeight() / 2)), player.getSprite().getHeight() / 2);
         }
-        else if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            spawnerEnvironment.add(asteroidSpawnerFactory.create());
-            Random random = new Random();
-            spawnerEnvironment.getLast().getSprite().setPosition(new Vector2(random.nextFloat(0, screenWidth), random.nextFloat(0, screenHeight)));
-            spawnerEnvironment.getLast().getWeapon().update(new Vector2(spawnerEnvironment.getLast().getSprite().getPosition()), spawnerEnvironment.getLast().getSprite().getHeight() / 2);
-        }
         else if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {
-            spawnerEnvironment.getLast().attack(player, projectileEnvironment);
+            for (Spawner spawner : spawnerEnvironment) {
+                spawner.attack(player, projectileEnvironment);
+            }
         }
     }
 
