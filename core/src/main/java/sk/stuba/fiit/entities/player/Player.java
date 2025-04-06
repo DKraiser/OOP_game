@@ -1,8 +1,10 @@
 package sk.stuba.fiit.entities.player;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Logger;
+import sk.stuba.fiit.Collider;
 import sk.stuba.fiit.Weapon;
 import sk.stuba.fiit.effects.Effect;
 import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
@@ -55,6 +57,7 @@ public class Player extends Entity implements Damageable {
         this.balance = balance;
 
         rangedAttacking = new DirectionRangedAttackingStrategy();
+        setCollider(new Collider(new Circle(new Vector2(position), getSprite().getHeight() / 2)));
         logger = new Logger("Player", Logger.INFO);
     }
 

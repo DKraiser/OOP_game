@@ -40,6 +40,8 @@ public class ProjectileFactory implements Factory<Projectile> {
 
         newProjectile.getSprite().setPosition(new Vector2(positionOfAttacker).add(directionVector.scl(radiusOfAttacker + newProjectile.getSprite().getHeight() / 2)).sub(new Vector2(newProjectile.getSprite().getWidth() / 2, newProjectile.getSprite().getHeight() / 2)));
 
+        newProjectile.getCollider().setPosition(new Vector2(newProjectile.getSprite().getPosition()).add(new Vector2(newProjectile.getSprite().getWidth(), newProjectile.getSprite().getHeight()).scl(0.5f)));
+
         log();
 
         return newProjectile;

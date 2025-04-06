@@ -1,7 +1,9 @@
 package sk.stuba.fiit.projectiles;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
+import sk.stuba.fiit.Collider;
 import sk.stuba.fiit.entities.Entity;
 import sk.stuba.fiit.interfaces.attack.MeleeAttacking;
 import sk.stuba.fiit.strategies.MeleeAttackingStrategy;
@@ -22,6 +24,7 @@ public abstract class Projectile extends Entity implements Cloneable{
 
     public void move(float deltaTime) {
         getSprite().translate(new Vector2(getDirection().x * speed * deltaTime, getDirection().y * speed * deltaTime));
+        getCollider().move(new Vector2(getDirection()).scl(speed * deltaTime));
     }
 
     @Override
@@ -39,5 +42,6 @@ public abstract class Projectile extends Entity implements Cloneable{
         attacker = new MeleeAttackingStrategy();
         direction = new Vector2(1, 1);
         speed = 1;
+        setCollider(new Collider(new Circle(new Vector2(1, 1), getSprite().getHeight() / 2)));
     }
 }

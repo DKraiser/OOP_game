@@ -1,7 +1,9 @@
 package sk.stuba.fiit.factories.weaponfactories;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
+import sk.stuba.fiit.Collider;
 import sk.stuba.fiit.Weapon;
 import sk.stuba.fiit.factories.projectilefactories.EnemyProjectileFactory;
 import sk.stuba.fiit.projectiles.EnemyProjectile;
@@ -20,6 +22,8 @@ public class AsteroidEnemyWeaponFactory extends WeaponFactory {
         projectileTemplate = new EnemyProjectile("", "", new Texture("asteroid.png"), 3, 3, null,10f);
         projectileTemplate.getSprite().setSize(0.8f,0.8f);
         projectileTemplate.getSprite().setOrigin(projectileTemplate.getSprite().getWidth() / 2, projectileTemplate.getSprite().getHeight() / 2);
+
+        projectileTemplate.setCollider(new Collider(new Circle(new Vector2(projectileTemplate.getSprite().getPosition()), projectileTemplate.getSprite().getHeight() / 2)));
     }
 
     public AsteroidEnemyWeaponFactory(float radiusOfAttacker, Vector2 positionOfAttacker) {

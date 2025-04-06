@@ -1,6 +1,7 @@
 package sk.stuba.fiit;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Circle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sk.stuba.fiit.entities.Entity;
@@ -86,5 +87,12 @@ public class EntityTest {
         assertThrows(IllegalArgumentException.class, () -> {
             entity.setMaxHealth(-20);
         });
+    }
+
+    @Test
+    public void testGetAndSetCollider() {
+        Collider collider = new Collider(new Circle(0, 0, 1));
+        entity.setCollider(collider);
+        assertEquals(collider, entity.getCollider());
     }
 }

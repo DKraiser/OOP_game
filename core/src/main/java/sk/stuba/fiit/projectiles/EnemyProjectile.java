@@ -36,7 +36,7 @@ public class EnemyProjectile extends Projectile implements Damageable {
     public Projectile clone() {
         EnemyProjectile clone = new EnemyProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), null, this.getSpeed());
         clone.getSprite().set(this.getSprite());
-
+        clone.setCollider(this.getCollider().clone());
 
         List<Effect> clonedEffects = new ArrayList<>();
         if (!this.getEffectHandler().getEffects().isEmpty()) {

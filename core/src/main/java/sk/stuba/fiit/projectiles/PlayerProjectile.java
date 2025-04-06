@@ -11,6 +11,8 @@ public class PlayerProjectile extends Projectile implements Cloneable{
     public Projectile clone() {
         Projectile clone = new PlayerProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), null, this.getSpeed());
         clone.getSprite().set(this.getSprite());
+        clone.setCollider(this.getCollider().clone());
+
         return clone;
     }
 

@@ -2,14 +2,19 @@ package sk.stuba.fiit.screens;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import sk.stuba.fiit.Collider;
 import sk.stuba.fiit.GameObject;
 import sk.stuba.fiit.MyGame;
 import sk.stuba.fiit.Weapon;
@@ -45,6 +50,7 @@ public class GameScreen implements Screen{
     List<Projectile> tempProjectileEnvironment;
     List<Spawner> spawnerEnvironment;
     List<Spawner> tempSpawnerEnvironment;
+    ShapeRenderer shapeRenderer;
 
     private SpawnerFactory asteroidSpawnerFactory;
 
@@ -68,6 +74,7 @@ public class GameScreen implements Screen{
         tempProjectileEnvironment = new ArrayList<Projectile>();
         spawnerEnvironment = new ArrayList<Spawner>();
         tempSpawnerEnvironment = new ArrayList<Spawner>();
+        shapeRenderer = new ShapeRenderer();
 
         background = new GameObject("","", new Texture("space_background.jpg"));
         background.getSprite().setSize(screenWidth, screenHeight);
@@ -79,6 +86,7 @@ public class GameScreen implements Screen{
     @Override
     public void render(float deltaTime) {
         batch.setProjectionMatrix(camera.combined);
+        shapeRenderer.setProjectionMatrix(camera.combined);
         input();
         batch.begin();
         background.getSprite().draw(batch);
@@ -108,6 +116,14 @@ public class GameScreen implements Screen{
             }
 
         batch.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        for (Projectile projectile : projectileEnvironment) {
+            drawCollider(projectile.getCollider());
+        }
+        drawCollider(player.getCollider());
+        shapeRenderer.end();
+
         camera.update();
     }
 
@@ -129,6 +145,18 @@ public class GameScreen implements Screen{
         }
         else if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {
             spawnerEnvironment.getLast().attack(player, projectileEnvironment);
+        }
+    }
+
+    public void drawCollider(Collider collider) {
+        if (collider.getCircleCollider() != null) {
+            Circle circle = collider.getCircleCollider();
+            shapeRenderer.setColor(Color.PINK);
+            shapeRenderer.circle(circle.x, circle.y, circle.radius);
+        } else if (collider.getRectCollider() != null) {
+            Rectangle rect = collider.getRectCollider();
+            shapeRenderer.setColor(Color.RED);
+            shapeRenderer.rect(rect.x, rect.y, rect.width, rect.height);
         }
     }
 
