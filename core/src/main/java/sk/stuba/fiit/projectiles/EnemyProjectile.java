@@ -55,6 +55,11 @@ public class EnemyProjectile extends Projectile implements Damageable {
         this.effectHandler = new EffectHandler();
     }
 
+    public EnemyProjectile(){
+        super();
+        this.effectHandler = new EffectHandler();
+    }
+
     public void takeEffect(Effect effect) {
 
     }

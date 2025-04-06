@@ -31,4 +31,8 @@ public class SpriteExtended extends Sprite {
         super(texture);
         this.position = new Vector2(getX(), getY());
     }
+
+    public SpriteExtended(Sprite sprite) {
+        set(sprite);
+    }
 }

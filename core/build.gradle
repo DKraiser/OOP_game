@@ -1,10 +1,18 @@
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 eclipse.project.name = appName + '-core'
 
+test {
+  useJUnitPlatform();
+}
+
 dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
 
-  implementation platform('org.apache.logging.log4j:log4j-bom:2.24.3')
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+
+  testImplementation 'org.mockito:mockito-core:5.11.0'
+  testImplementation 'org.mockito:mockito-inline:5.2.0'
 
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"

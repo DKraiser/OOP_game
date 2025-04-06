@@ -18,6 +18,10 @@ public class PlayerProjectile extends Projectile implements Cloneable{
         super(name, description, texture, health, maxHealth, direction, speed);
     }
 
+    public PlayerProjectile() {
+        super();
+    }
+
     @Override
     public void takeDamage(int damage) {
         die();

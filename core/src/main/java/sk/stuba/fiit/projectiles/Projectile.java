@@ -33,4 +33,11 @@ public abstract class Projectile extends Entity implements Cloneable{
         this.direction = direction;
         this.speed = speed;
     }
+
+    public Projectile() {
+        super("Mock", "Mock", new Texture("empty.png"), 1, 1);
+        attacker = new MeleeAttackingStrategy();
+        direction = new Vector2(1, 1);
+        speed = 1;
+    }
 }
