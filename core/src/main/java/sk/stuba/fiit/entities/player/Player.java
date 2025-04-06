@@ -14,6 +14,7 @@ import sk.stuba.fiit.entities.Entity;
 import sk.stuba.fiit.interfaces.attack.RangedAttacking;
 import sk.stuba.fiit.interfaces.Damageable;
 import sk.stuba.fiit.projectiles.Projectile;
+import sk.stuba.fiit.Timer;
 
 import java.util.List;
 
@@ -22,7 +23,9 @@ public class Player extends Entity implements Damageable {
     private Weapon weapon;
     private EffectHandler effectHandler;
     private RangedAttacking rangedAttacking;
-
+    private Timer timer;
+    private Runnable healMechanism;
+    private int healRate;
     private Logger logger;
 
     public Weapon getWeapon() {
@@ -30,10 +33,22 @@ public class Player extends Entity implements Damageable {
     }
     public EffectHandler getEffectHandler() { return effectHandler; }
     public int getBalance() { return balance; }
+    public Timer getTimer() {
+        return timer;
+    }
+    public Runnable getHealMechanism() {
+        return healMechanism;
+    }
 
     public void setWeapon(Weapon weapon) {this.weapon = weapon; }
     public void setEffectHandler(EffectHandler effectHandler) { this.effectHandler = effectHandler; }
     public void setBalance(int balance) { this.balance = balance; }
+    public void setTimer(Timer timer) {
+        this.timer = timer;
+    }
+    public void setHealMechanism(Runnable healMechanism) {
+        this.healMechanism = healMechanism;
+    }
 
     public void takeEffect(Effect effect) {
         effectHandler.getEffects().add(effect);
@@ -44,7 +59,7 @@ public class Player extends Entity implements Damageable {
             effect.tickEffect(delta);
     }
 
-    public Player(String name, String description, Texture texture, float size, Vector2 position, int health, int maxHealth, int balance, WeaponFactory weaponFactory) {
+    public Player(String name, String description, Texture texture, float size, Vector2 position, int health, int maxHealth, int healRate, Timer timer, int balance, WeaponFactory weaponFactory) {
         super(name, description, texture, health, maxHealth);
         getSprite().setSize(size, size);
         getSprite().setPosition(new Vector2(position).sub(new Vector2(getSprite().getWidth(), getSprite().getHeight()).scl(0.5f)));
@@ -52,9 +67,17 @@ public class Player extends Entity implements Damageable {
         weaponFactory.setPositionOfAttacker(position);
         weaponFactory.setRadiusOfAttacker(getSprite().getHeight() / 2);
         this.weapon = weaponFactory.create();
-
         this.effectHandler = new EffectHandler();
         this.balance = balance;
+
+        this.timer = timer;
+        this.healRate = healRate;
+        this.healMechanism = (() -> {
+            this.setHealth(getHealth() + healRate);
+            if (getHealth() > maxHealth) {
+                setHealth(maxHealth);
+            }
+        });
 
         rangedAttacking = new DirectionRangedAttackingStrategy();
         setCollider(new Collider(new Circle(new Vector2(position), getSprite().getHeight() / 2)));
@@ -86,5 +109,13 @@ public class Player extends Entity implements Damageable {
 
     public void onEnemyKilled(int killedEnemyPrice) {
         setBalance(getBalance() + killedEnemyPrice);
+        logger.info("Current balance: " + getBalance());
+    }
+
+    public void heal() {
+        if (timer.isElapsed()) {
+            healMechanism.run();
+            logger.info("Current health: " + getHealth());
+        }
     }
 }

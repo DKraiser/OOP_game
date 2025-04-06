@@ -14,10 +14,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import sk.stuba.fiit.Collider;
-import sk.stuba.fiit.GameObject;
-import sk.stuba.fiit.MyGame;
-import sk.stuba.fiit.Weapon;
+import sk.stuba.fiit.*;
 import sk.stuba.fiit.entities.Spawner;
 import sk.stuba.fiit.entities.player.Player;
 import sk.stuba.fiit.events.EnemyKilledEvent;
@@ -63,7 +60,7 @@ public class GameScreen implements Screen{
         random = new Random();
         random.setSeed(System.currentTimeMillis());
 
-        Gdx.app.setLogLevel(Application.LOG_DEBUG);
+        Gdx.app.setLogLevel(Application.LOG_INFO);
         logger = new Logger("GameScreen", Application.LOG_DEBUG);
 
         camera = new OrthographicCamera();
@@ -72,7 +69,7 @@ public class GameScreen implements Screen{
         camera.update();
 
         playerWeaponFactory = new BasicPlayerWeaponFactory();
-        player = new Player("P", "Player", new Texture("earth.png"), 1, new Vector2(screenWidth / 2, screenHeight / 2), 5, 5, 0, playerWeaponFactory);
+        player = new Player("P", "Player", new Texture("earth.png"), 1, new Vector2(screenWidth / 2, screenHeight / 2), 5, 5, 1, new Timer(10), 0, playerWeaponFactory);
 
         EnemyKilledEvent.setPlayer(player);
 
@@ -82,7 +79,7 @@ public class GameScreen implements Screen{
         tempProjectileEnvironment = new ArrayList<Projectile>();
         spawnerEnvironment = new ArrayList<Spawner>();
         tempSpawnerEnvironment = new ArrayList<Spawner>();
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 5; i++)
         {
             spawnerEnvironment.add(asteroidSpawnerFactory.create());
             float x = random.nextFloat(-screenWidth / 2, screenWidth / 2);
@@ -122,7 +119,6 @@ public class GameScreen implements Screen{
             for (Projectile projectile : projectileEnvironment) {
                 projectile.getSprite().draw(batch);
                 projectile.move(deltaTime);
-                logger.info("Projectile: " + projectile.getSprite().getPosition());
                 if (Math.abs(projectile.getSprite().getPosition().x - screenWidth / 2) > screenWidth / 2 * 1.5f) {
                     tempProjectileEnvironment.remove(projectile);
                 }
@@ -151,7 +147,11 @@ public class GameScreen implements Screen{
             if (tempProjectileEnvironment.size() > 0) {
                 projectileEnvironment.addAll(tempProjectileEnvironment);
             }
+
         }
+        player.getTimer().tick(deltaTime);
+        player.heal();
+
         if (!spawnerEnvironment.isEmpty()) {
             for (Spawner spawner : spawnerEnvironment) {
                 spawner.getSprite().draw(batch);
