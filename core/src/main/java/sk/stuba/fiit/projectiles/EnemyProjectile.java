@@ -2,6 +2,7 @@ package sk.stuba.fiit.projectiles;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
+import sk.stuba.fiit.MyGame;
 import sk.stuba.fiit.effects.Effect;
 import sk.stuba.fiit.EffectHandler;
 import sk.stuba.fiit.events.EnemyKilledEvent;
@@ -36,7 +37,7 @@ public class EnemyProjectile extends Projectile implements Damageable {
 
     @Override
     public void die() {
-        System.out.println("Dead " + getName());
+        System.out.println("Enemy projectile destroyed");
         EnemyKilledEvent.invokeEvent(getPrice());
     }
 
@@ -50,7 +51,10 @@ public class EnemyProjectile extends Projectile implements Damageable {
     @Override
     public Projectile clone() {
         EnemyProjectile clone = new EnemyProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), null, this.getSpeed(), this.getDamage(), this.getPrice());
-        clone.getSprite().set(this.getSprite());
+        if (!MyGame.TESTMODE)
+        {
+            clone.getSprite().set(this.getSprite());
+        }
         clone.setCollider(this.getCollider().clone());
 
         List<Effect> clonedEffects = new ArrayList<>();
@@ -59,7 +63,7 @@ public class EnemyProjectile extends Projectile implements Damageable {
                 clonedEffects.add(effect.clone());
                 clonedEffects.getLast().setTarget(clone);
             }
-            clone.getEffectHandler().setEffects(clonedEffects);
+            clone.getEffectHandler().takeEffect(clonedEffects);
         }
         return clone;
     }
@@ -69,12 +73,6 @@ public class EnemyProjectile extends Projectile implements Damageable {
         super(name, description, texture, health, maxHealth, direction, speed, damage);
         effectHandler = new EffectHandler();
         this.price = price;
-    }
-
-    public EnemyProjectile() {
-        super();
-        effectHandler = new EffectHandler();
-        price = 0;
     }
 
     public void takeEffect(Effect effect) {

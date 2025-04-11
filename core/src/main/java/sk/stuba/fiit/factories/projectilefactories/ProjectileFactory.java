@@ -24,9 +24,9 @@ public class ProjectileFactory implements Factory<Projectile> {
 
     public void log()
     {
-        logger.debug("Projectile Position: " + newProjectile.getSprite().getPosition());
+        logger.debug("Projectile Position: " + newProjectile.getPosition());
         logger.debug("Projectile Direction: " + directionVector);
-        logger.debug("Projectile Rotation: " + newProjectile.getSprite().getRotation());
+        logger.debug("Projectile Rotation: " + newProjectile.getRotation());
     }
 
     @Override
@@ -36,11 +36,11 @@ public class ProjectileFactory implements Factory<Projectile> {
         newProjectile.setDirection(directionVector);
         rotation = (float)Math.atan(directionVector.y / directionVector.x) - (float)Math.PI / 2;
         if (directionVector.x < 0) rotation += (float)Math.PI;
-        newProjectile.getSprite().setRotation((float)(rotation * 180 / Math.PI));
+        newProjectile.setRotation((float)(rotation * 180 / Math.PI));
 
-        newProjectile.getSprite().setPosition(new Vector2(positionOfAttacker).add(directionVector.scl(radiusOfAttacker + newProjectile.getSprite().getHeight() / 2)).sub(new Vector2(newProjectile.getSprite().getWidth() / 2, newProjectile.getSprite().getHeight() / 2)));
+        newProjectile.setPosition(new Vector2(positionOfAttacker.x - projectileTemplate.getWidth() / 2, positionOfAttacker.y - projectileTemplate.getHeight() / 2).add(directionVector.scl(1.5f * radiusOfAttacker)));
 
-        newProjectile.getCollider().setPosition(new Vector2(newProjectile.getSprite().getPosition()).add(new Vector2(newProjectile.getSprite().getWidth(), newProjectile.getSprite().getHeight()).scl(0.5f)));
+        newProjectile.getCollider().setPosition(new Vector2(positionOfAttacker.x - projectileTemplate.getWidth() / 2, positionOfAttacker.y - projectileTemplate.getHeight() / 2).add(directionVector.scl(1.5f * radiusOfAttacker)).add(projectileTemplate.getWidth() / 2, projectileTemplate.getHeight() / 2).add(directionVector.scl(projectileTemplate.getWidth() * 0.8f)));
 
         log();
 

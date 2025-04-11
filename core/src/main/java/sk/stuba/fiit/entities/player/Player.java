@@ -7,7 +7,10 @@ import com.badlogic.gdx.utils.Logger;
 import sk.stuba.fiit.Collider;
 import sk.stuba.fiit.Weapon;
 import sk.stuba.fiit.effects.Effect;
+import sk.stuba.fiit.effects.ParalyseEffect;
 import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
+import sk.stuba.fiit.interfaces.Effectable;
+import sk.stuba.fiit.interfaces.Tickable;
 import sk.stuba.fiit.strategies.DirectionRangedAttackingStrategy;
 import sk.stuba.fiit.EffectHandler;
 import sk.stuba.fiit.entities.Entity;
@@ -16,95 +19,92 @@ import sk.stuba.fiit.interfaces.Damageable;
 import sk.stuba.fiit.projectiles.Projectile;
 import sk.stuba.fiit.Timer;
 
+import java.util.Dictionary;
 import java.util.List;
 
-public class Player extends Entity implements Damageable {
+import static java.lang.Math.max;
+
+public class Player extends Entity implements Damageable, Tickable, Effectable {
     private int balance;
     private Weapon weapon;
+
     private EffectHandler effectHandler;
     private RangedAttacking rangedAttacking;
-    private Timer timer;
-    private Runnable healMechanism;
-    private int healRate;
+    private Timer healingTimer;
+    private Runnable healingMechanism;
+    private int healingPerInterval;
     private Logger logger;
 
     public Weapon getWeapon() {
         return weapon;
     }
+    public void setWeapon(Weapon weapon) {
+        this.weapon = weapon;
+    }
+
     public EffectHandler getEffectHandler() { return effectHandler; }
+    public void setEffectHandler(EffectHandler effectHandler) {
+        this.effectHandler = effectHandler;
+    }
+
     public int getBalance() { return balance; }
-    public Timer getTimer() {
-        return timer;
-    }
-    public Runnable getHealMechanism() {
-        return healMechanism;
-    }
-
-    public void setWeapon(Weapon weapon) {this.weapon = weapon; }
-    public void setEffectHandler(EffectHandler effectHandler) { this.effectHandler = effectHandler; }
     public void setBalance(int balance) { this.balance = balance; }
-    public void setTimer(Timer timer) {
-        this.timer = timer;
-    }
-    public void setHealMechanism(Runnable healMechanism) {
-        this.healMechanism = healMechanism;
+
+    public int getHealingPerInterval() { return healingPerInterval; }
+    public void setHealingPerInterval(int healingPerInterval) {
+        if (healingPerInterval <= 0) {
+            throw new IllegalArgumentException("healingPerInterval must be greater than 0");
+        }
+        this.healingPerInterval = healingPerInterval;
     }
 
+    public Timer getHealingTimer() {
+        return healingTimer;
+    }
+    public void setHealingTimer(Timer timer) {
+        this.healingTimer = timer;
+    }
+
+    public Runnable getHealingMechanism() {
+        return healingMechanism;
+    }
+    public void setHealingMechanism(Runnable healingMechanism) {
+        this.healingMechanism = healingMechanism;
+    }
+
+    @Override
     public void takeEffect(Effect effect) {
-        effectHandler.getEffects().add(effect);
+        effectHandler.takeEffect(effect);
     }
 
-    public void updateEffects(float delta) {
-        for (Effect effect : effectHandler.getEffects())
-            effect.tickEffect(delta);
+    @Override
+    public void updateEffects(float deltaTime) {
+        effectHandler.updateEffects(deltaTime);
     }
 
-    public Player(String name, String description, Texture texture, float size, Vector2 position, int health, int maxHealth, int healRate, Timer timer, int balance, WeaponFactory weaponFactory) {
-        super(name, description, texture, health, maxHealth);
-        getSprite().setSize(size, size);
-        getSprite().setPosition(new Vector2(position).sub(new Vector2(getSprite().getWidth(), getSprite().getHeight()).scl(0.5f)));
-
-        weaponFactory.setPositionOfAttacker(position);
-        weaponFactory.setRadiusOfAttacker(getSprite().getHeight() / 2);
-        this.weapon = weaponFactory.create();
-        this.effectHandler = new EffectHandler();
-        this.balance = balance;
-
-        this.timer = timer;
-        this.healRate = healRate;
-        this.healMechanism = (() -> {
-            this.setHealth(getHealth() + healRate);
-            if (getHealth() > maxHealth) {
-                setHealth(maxHealth);
-            }
-        });
-
-        rangedAttacking = new DirectionRangedAttackingStrategy();
-        setCollider(new Collider(new Circle(new Vector2(position), getSprite().getHeight() / 2)));
-        logger = new Logger("Player", Logger.INFO);
+    public void attack(Vector2 direction, List<Projectile> projectileEnvironment) {
+        if (effectHandler.getEffect(ParalyseEffect.class) == null) {
+            rangedAttacking.attack(direction, projectileEnvironment, weapon);
+        }
     }
 
     @Override
     public void die() {
-        logger.info("Killed");
+        logger.info("Player was killed");
     }
 
     @Override
     public void takeDamage(int damage) {
-        setHealth(getHealth() - damage);
+        setHealth(max(getHealth() - damage, 0));
         logger.info("Get " + damage + " damage\n" + getHealth() + " health points left");
-        if (getHealth() <= 0) {
+        if (getHealth() == 0) {
             die();
         }
     }
 
     public Vector2 findDirectionVector(Vector2 endpoint) {
-        Vector2 directionStartPoint = new Vector2(getSprite().getPosition()).add(new Vector2(getSprite().getWidth() / 2, getSprite().getHeight() / 2));
+        Vector2 directionStartPoint = new Vector2(getPosition()).add(new Vector2(getWidth(), getHeight()).scl(0.5f));
         return new Vector2(endpoint.sub(directionStartPoint)).nor();
-    }
-
-    public void attack(Vector2 direction, List<Projectile> projectileEnvironment) {
-        rangedAttacking.attack(direction, projectileEnvironment, weapon);
     }
 
     public void onEnemyKilled(int killedEnemyPrice) {
@@ -113,9 +113,36 @@ public class Player extends Entity implements Damageable {
     }
 
     public void heal() {
-        if (timer.isElapsed()) {
-            healMechanism.run();
+        if (healingTimer.isElapsed()) {
+            healingMechanism.run();
             logger.info("Current health: " + getHealth());
         }
+    }
+
+    @Override
+    public void tick(float deltaTime) {
+        healingTimer.tick(deltaTime);
+        heal();
+        updateEffects(deltaTime);
+    }
+
+    public Player(String name, String description, Texture texture, float size, Vector2 position, int health, int maxHealth, int healingPerInterval, Timer timer, int balance, WeaponFactory weaponFactory) {
+        super(name, description, texture, health, maxHealth);
+        setSize(size, size);
+        setPosition(new Vector2(position).sub(new Vector2(getWidth(), getHeight()).scl(0.5f)));
+
+        weaponFactory.setPositionOfAttacker(getPosition().cpy().add(getWidth() / 2, getHeight() / 2));
+        weaponFactory.setRadiusOfAttacker(getHeight() / 2);
+        this.weapon = weaponFactory.create();
+        this.effectHandler = new EffectHandler();
+        this.balance = balance;
+
+        this.healingTimer = timer;
+        this.healingPerInterval = healingPerInterval;
+        this.healingMechanism = (() -> this.setHealth(getHealth() + healingPerInterval));
+
+        rangedAttacking = new DirectionRangedAttackingStrategy();
+        setCollider(new Collider(new Circle(new Vector2(position), getHeight() / 2)));
+        logger = new Logger("Player", Logger.INFO);
     }
 }

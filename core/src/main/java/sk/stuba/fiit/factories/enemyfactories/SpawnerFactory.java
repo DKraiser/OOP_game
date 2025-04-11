@@ -18,7 +18,7 @@ public abstract class SpawnerFactory implements Factory<Entity> {
     public Spawner create(Object... args) {
         newSpawner = spawnerTemplate.clone();
         newSpawner.setWeapon(weaponFactory.create());
-        newSpawner.setTimer(new Timer(10, rand.nextFloat(0, 10)));
+        newSpawner.setSpawnTimer(new Timer(10, rand.nextFloat(0, 10)));
         return newSpawner;
     }
 

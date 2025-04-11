@@ -13,7 +13,7 @@ public class AsteroidSpawnerFactory extends SpawnerFactory{
         weaponFactory = new AsteroidEnemyWeaponFactory();
 
         spawnerTemplate = new Spawner("Asteroid Spawner", "", new Texture("empty.png"), 1, 1, null, 0, null);
-        spawnerTemplate.getSprite().setSize(.8f, .8f);
-        spawnerTemplate.getSprite().setOrigin(spawnerTemplate.getSprite().getWidth() / 2, spawnerTemplate.getSprite().getHeight() / 2);
+        spawnerTemplate.setSize(.8f, .8f);
+        spawnerTemplate.setOrigin(spawnerTemplate.getWidth() / 2, spawnerTemplate.getHeight() / 2);
     }
 }

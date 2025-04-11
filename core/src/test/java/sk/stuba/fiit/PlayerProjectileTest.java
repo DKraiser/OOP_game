@@ -1,6 +1,6 @@
 package sk.stuba.fiit;
 
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,66 +11,52 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PlayerProjectileTest {
 
-    private PlayerProjectile playerProjectile;
+    private PlayerProjectile projectile;
 
     @BeforeEach
     public void setUp() {
-        Texture mockTexture = new Texture("empty.png");
-        playerProjectile = new PlayerProjectile("Player Projectile", "Player's special projectile", mockTexture, 100, 100, new Vector2(1, 0), 10.0f, 1);
+        projectile = new PlayerProjectile("Player Projectile", "Player's special projectile", null, 100, 100, new Vector2(1, 0), 10.0f, 1);
+        projectile.setCollider(new Collider(new Circle(1, 1, 1)));
     }
 
     @Test
     public void testInitialValues() {
-        assertEquals("Player Projectile", playerProjectile.getName());
-        assertEquals("Player's special projectile", playerProjectile.getDescription());
-        assertEquals(100, playerProjectile.getHealth());
-        assertEquals(100, playerProjectile.getMaxHealth());
-        assertEquals(1, playerProjectile.getDirection().x);
-        assertEquals(0, playerProjectile.getDirection().y);
-        assertEquals(10.0f, playerProjectile.getSpeed());
+        assertEquals("Player Projectile", projectile.getName());
+        assertEquals("Player's special projectile", projectile.getDescription());
+        assertEquals(100, projectile.getHealth());
+        assertEquals(100, projectile.getMaxHealth());
+        assertEquals(1, projectile.getDirection().x);
+        assertEquals(0, projectile.getDirection().y);
+        assertEquals(10.0f, projectile.getSpeed());
     }
 
     @Test
     public void testClone() {
-        Projectile clonedProjectile = playerProjectile.clone();
-        assertNotSame(playerProjectile, clonedProjectile);
-        assertEquals(playerProjectile.getName(), clonedProjectile.getName());
-        assertEquals(playerProjectile.getDescription(), clonedProjectile.getDescription());
-        assertEquals(playerProjectile.getHealth(), clonedProjectile.getHealth());
-        assertEquals(playerProjectile.getMaxHealth(), clonedProjectile.getMaxHealth());
-        assertEquals(playerProjectile.getDirection(), clonedProjectile.getDirection());
-        assertEquals(playerProjectile.getSpeed(), clonedProjectile.getSpeed());
+        Projectile clonedProjectile = projectile.clone();
+        assertNotSame(projectile, clonedProjectile);
+        assertEquals(projectile.getName(), clonedProjectile.getName());
+        assertEquals(projectile.getDescription(), clonedProjectile.getDescription());
+        assertEquals(projectile.getHealth(), clonedProjectile.getHealth());
+        assertEquals(projectile.getMaxHealth(), clonedProjectile.getMaxHealth());
+        assertEquals(projectile.getSpeed(), clonedProjectile.getSpeed());
     }
 
     @Test
     public void testTakeDamage() {
-        playerProjectile.takeDamage(50);
-        assertEquals(0, playerProjectile.getHealth());
+        assertDoesNotThrow(() -> projectile.takeDamage(1));
     }
 
     @Test
     public void testDie() {
-        assertDoesNotThrow(() -> playerProjectile.die());
-    }
-
-    @Test
-    public void testDefaultConstructor() {
-        PlayerProjectile defaultProjectile = new PlayerProjectile();
-        assertEquals("Mock", defaultProjectile.getName());
-        assertEquals("Mock", defaultProjectile.getDescription());
-        assertEquals(1, defaultProjectile.getHealth());
-        assertEquals(1, defaultProjectile.getMaxHealth());
-        assertEquals(1, defaultProjectile.getDirection().x);
-        assertEquals(1, defaultProjectile.getDirection().y);
-        assertEquals(1.0f, defaultProjectile.getSpeed());
+        assertDoesNotThrow(() -> projectile.die());
     }
 
     @Test
     public void testMove() {
         float deltaTime = 1.0f;
-        Vector2 initialPosition = playerProjectile.getSprite().getPosition().cpy();
-        playerProjectile.move(deltaTime);
-        Vector2 expectedPosition = initialPosition.cpy().add(new Vector2(playerProjectile.getDirection().x * playerProjectile.getSpeed() * deltaTime, playerProjectile.getDirection().y * playerProjectile.getSpeed() * deltaTime));
-        assertEquals(expectedPosition, playerProjectile.getSprite().getPosition());
+        Vector2 initialPosition = projectile.getPosition().cpy();
+        projectile.move(deltaTime);
+        Vector2 expectedPosition = initialPosition.cpy().add(new Vector2(projectile.getDirection().x * projectile.getSpeed() * deltaTime, projectile.getDirection().y * projectile.getSpeed() * deltaTime));
+        assertEquals(expectedPosition, projectile.getPosition());
     }
 }

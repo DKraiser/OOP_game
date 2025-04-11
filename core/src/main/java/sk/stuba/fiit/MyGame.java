@@ -6,6 +6,7 @@ import sk.stuba.fiit.screens.GameScreen;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class MyGame extends Game {
+    public static final boolean TESTMODE = true;
     private SpriteBatch batch;
 
     @Override

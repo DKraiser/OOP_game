@@ -21,9 +21,9 @@ public class BasicPlayerWeaponFactory extends WeaponFactory {
     @Override
     public void adjustProjectileTemplate() {
         projectileTemplate = new PlayerProjectile("", "", new Texture("basic_bullet.png"), 1, 1, null, 10f, 1);
-        projectileTemplate.getSprite().setSize(0.5f,0.5f);
-        projectileTemplate.getSprite().setOrigin(projectileTemplate.getSprite().getWidth() / 2, projectileTemplate.getSprite().getHeight() / 2);
-        projectileTemplate.setCollider(new Collider(new Circle(new Vector2(projectileTemplate.getSprite().getPosition()).add(new Vector2(projectileTemplate.getSprite().getWidth(), projectileTemplate.getSprite().getHeight()).scl(0.5f)), projectileTemplate.getSprite().getHeight() / 4)));
+        projectileTemplate.setSize(0.5f,0.5f);
+        projectileTemplate.setOrigin(projectileTemplate.getWidth() / 2, projectileTemplate.getHeight() / 2);
+        projectileTemplate.setCollider(new Collider(new Circle(new Vector2(projectileTemplate.getPosition()).add(new Vector2(projectileTemplate.getWidth(), projectileTemplate.getHeight()).scl(0.5f)), projectileTemplate.getHeight() / 4)));
     }
 
     public BasicPlayerWeaponFactory (float radiusOfAttacker, Vector2 positionOfAttacker) {

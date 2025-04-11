@@ -16,9 +16,9 @@ public class TargetRangedAttackingStrategy implements RangedAttacking {
 
     @Override
     public void attack(Damageable target, Collection<Projectile> projectileEnvironment, Weapon weapon) {
-        Vector2 direction = new Vector2(((Entity) target).getSprite().getPosition());
-        direction.add(new Vector2(((Entity) target).getSprite().getWidth(), ((Entity) target).getSprite().getHeight()).scl(0.5f));
-        direction.sub(weapon.getPositionOfWeapon());
+        Vector2 direction = new Vector2(((Entity) target).getPosition());
+        direction.add(new Vector2(((Entity) target).getWidth(), ((Entity) target).getHeight()).scl(0.5f));
+        direction.sub(weapon.getPosition());
         direction.nor();
         weapon.shoot(direction, projectileEnvironment);
     }

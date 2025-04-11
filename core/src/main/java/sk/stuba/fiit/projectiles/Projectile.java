@@ -32,7 +32,7 @@ public abstract class Projectile extends Entity implements Cloneable{
     public void setAttacker(MeleeAttacking attacker) { this.attacker = attacker; }
 
     public void move(float deltaTime) {
-        getSprite().translate(new Vector2(getDirection().x * speed * deltaTime, getDirection().y * speed * deltaTime));
+        translate(new Vector2(getDirection()).scl(speed * deltaTime));
         getCollider().move(new Vector2(getDirection()).scl(speed * deltaTime));
     }
 
@@ -45,14 +45,5 @@ public abstract class Projectile extends Entity implements Cloneable{
         this.damage = damage;
         this.direction = direction;
         this.speed = speed;
-    }
-
-    public Projectile() {
-        super("Mock", "Mock", new Texture("empty.png"), 1, 1);
-        attacker = new MeleeAttackingStrategy();
-        direction = new Vector2(1, 1);
-        speed = 1;
-        damage = 1;
-        setCollider(new Collider(new Circle(new Vector2(1, 1), getSprite().getHeight() / 2)));
     }
 }

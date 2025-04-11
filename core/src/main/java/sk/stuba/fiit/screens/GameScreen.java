@@ -20,7 +20,6 @@ import sk.stuba.fiit.entities.player.Player;
 import sk.stuba.fiit.events.EnemyKilledEvent;
 import sk.stuba.fiit.factories.enemyfactories.AsteroidSpawnerFactory;
 import sk.stuba.fiit.factories.enemyfactories.SpawnerFactory;
-import sk.stuba.fiit.factories.weaponfactories.AsteroidEnemyWeaponFactory;
 import sk.stuba.fiit.factories.weaponfactories.BasicPlayerWeaponFactory;
 import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
 import sk.stuba.fiit.projectiles.EnemyProjectile;
@@ -84,14 +83,14 @@ public class GameScreen implements Screen{
             spawnerEnvironment.add(asteroidSpawnerFactory.create());
             float x = random.nextFloat(-screenWidth / 2, screenWidth / 2);
             float y = (float)(Math.sqrt(Math.pow(1.3f * screenWidth / 2, 2) - Math.pow(x, 2)) * Math.pow(-1, random.nextInt(0, 2)));
-            spawnerEnvironment.getLast().getSprite().setPosition(new Vector2(x + screenWidth / 2, y + screenHeight / 2));
-            spawnerEnvironment.getLast().getWeapon().update(new Vector2(spawnerEnvironment.getLast().getSprite().getPosition()), spawnerEnvironment.getLast().getSprite().getHeight() / 2);
-            logger.info("Spawner: " + i + "position: " + spawnerEnvironment.getLast().getSprite().getPosition());
+            spawnerEnvironment.getLast().setPosition(new Vector2(x + screenWidth / 2, y + screenHeight / 2));
+            spawnerEnvironment.getLast().getWeapon().update(new Vector2(spawnerEnvironment.getLast().getPosition()), spawnerEnvironment.getLast().getHeight() / 2);
+            logger.info("Spawner: " + i + "position: " + spawnerEnvironment.getLast().getPosition());
         }
         shapeRenderer = new ShapeRenderer();
 
         background = new GameObject("","", new Texture("space_background.jpg"));
-        background.getSprite().setSize(screenWidth, screenHeight);
+        background.setSize(screenWidth, screenHeight);
 
         batch = ((MyGame) game).getBatch();
         logger.info("Initialized");
@@ -108,7 +107,7 @@ public class GameScreen implements Screen{
 
         for (Spawner s : spawnerEnvironment)
         {
-            s.getTimer().tick(deltaTime);
+            s.tick(deltaTime);
             s.attack(player, projectileEnvironment);
         }
 
@@ -119,7 +118,7 @@ public class GameScreen implements Screen{
             for (Projectile projectile : projectileEnvironment) {
                 projectile.getSprite().draw(batch);
                 projectile.move(deltaTime);
-                if (Math.abs(projectile.getSprite().getPosition().x - screenWidth / 2) > screenWidth / 2 * 1.5f) {
+                if (Math.abs(projectile.getPosition().x - screenWidth / 2) > screenWidth / 2 * 1.5f) {
                     tempProjectileEnvironment.remove(projectile);
                 }
 
@@ -149,8 +148,7 @@ public class GameScreen implements Screen{
             }
 
         }
-        player.getTimer().tick(deltaTime);
-        player.heal();
+        player.tick(deltaTime);
 
         if (!spawnerEnvironment.isEmpty()) {
             for (Spawner spawner : spawnerEnvironment) {
@@ -176,8 +174,8 @@ public class GameScreen implements Screen{
             player.attack(direction, projectileEnvironment);
         }
         else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
-            player.getSprite().setPosition(new Vector2(touchPoint.x - player.getSprite().getWidth() / 2, touchPoint.y - player.getSprite().getHeight() / 2));
-            player.getWeapon().update(new Vector2(player.getSprite().getPosition()).add(new Vector2(player.getSprite().getWidth() / 2, player.getSprite().getHeight() / 2)), player.getSprite().getHeight() / 2);
+            player.setPosition(new Vector2(touchPoint.x - player.getWidth() / 2, touchPoint.y - player.getHeight() / 2));
+            player.getWeapon().update(new Vector2(player.getPosition()).add(new Vector2(player.getWidth() / 2, player.getHeight() / 2)), player.getHeight() / 2);
         }
         else if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {
             for (Spawner spawner : spawnerEnvironment) {

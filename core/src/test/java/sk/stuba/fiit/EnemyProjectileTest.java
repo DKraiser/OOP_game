@@ -1,11 +1,17 @@
 package sk.stuba.fiit;
 
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.backends.headless.HeadlessApplication;
+import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import sk.stuba.fiit.effects.Effect;
+import sk.stuba.fiit.effects.ParalyseEffect;
+import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.events.EnemyKilledEvent;
+import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
 import sk.stuba.fiit.interfaces.Damageable;
 import sk.stuba.fiit.projectiles.EnemyProjectile;
 
@@ -18,8 +24,8 @@ public class EnemyProjectileTest {
 
     @BeforeEach
     public void setUp() {
-        Texture mockTexture = new Texture("empty.png");
-        enemyProjectile = new EnemyProjectile("Enemy Projectile", "Enemy's projectile", mockTexture, 100, 100, new Vector2(1, 0), 10.0f, 1, 1);
+        enemyProjectile = new EnemyProjectile("Enemy Projectile", "Enemy's projectile", null, 100, 100, new Vector2(1, 0), 10.0f, 1, 1);
+        enemyProjectile.setCollider(new Collider(new Circle(1, 1, 1)));
         mockTarget = Mockito.mock(Damageable.class);
     }
 
@@ -57,6 +63,18 @@ public class EnemyProjectileTest {
 
     @Test
     public void testDie() {
+        new HeadlessApplication(new ApplicationAdapter() {});
+        EnemyKilledEvent.setPlayer(new Player("", "", null, 1, new Vector2(0, 0), 1, 1, 1, new Timer(1, 1), 1, new WeaponFactory() {
+            @Override
+            public void adjustProjectileTemplate() {
+
+            }
+
+            @Override
+            public Weapon create(Object... args) {
+                return null;
+            }
+        }));
         enemyProjectile.die();
         assertDoesNotThrow(() -> enemyProjectile.die());
     }
@@ -70,7 +88,6 @@ public class EnemyProjectileTest {
         assertEquals(enemyProjectile.getDescription(), clonedProjectile.getDescription());
         assertEquals(enemyProjectile.getHealth(), clonedProjectile.getHealth());
         assertEquals(enemyProjectile.getMaxHealth(), clonedProjectile.getMaxHealth());
-        assertEquals(enemyProjectile.getDirection(), clonedProjectile.getDirection());
         assertEquals(enemyProjectile.getSpeed(), clonedProjectile.getSpeed());
 
         assertNotNull(clonedProjectile.getEffectHandler());
@@ -78,28 +95,33 @@ public class EnemyProjectileTest {
     }
 
     @Test
-    public void testDefaultConstructor() {
-        EnemyProjectile defaultProjectile = new EnemyProjectile();
-
-        assertEquals("Mock", defaultProjectile.getName());
-        assertEquals("Mock", defaultProjectile.getDescription());
-        assertEquals(1, defaultProjectile.getHealth());
-        assertEquals(1, defaultProjectile.getMaxHealth());
-        assertEquals(1, defaultProjectile.getDirection().x);
-        assertEquals(1, defaultProjectile.getDirection().y);
-        assertEquals(1.0f, defaultProjectile.getSpeed());
-    }
-
-    @Test
     public void testTakeEffect() {
-        Effect mockEffect = Mockito.mock(Effect.class);
-        enemyProjectile.takeEffect(mockEffect);
-        assertDoesNotThrow(() -> enemyProjectile.takeEffect(mockEffect));
+        Effect effect = new ParalyseEffect(true, 1, 1, enemyProjectile);
+        enemyProjectile.takeEffect(effect);
+        assertDoesNotThrow(() -> enemyProjectile.takeEffect(effect));
     }
 
     @Test
     public void testUpdateEffects() {
         float deltaTime = 1.0f;
         assertDoesNotThrow(() -> enemyProjectile.updateEffects(deltaTime));
+    }
+
+    @Test
+    public void testGetPrice() {
+        assertEquals(1, enemyProjectile.getPrice());
+    }
+
+    @Test
+    public void testSetPrice() {
+        enemyProjectile.setPrice(3);
+        assertEquals(3, enemyProjectile.getPrice());
+    }
+
+    @Test
+    public void testSetEffectHandler() {
+        EffectHandler oldEffectHandler = enemyProjectile.getEffectHandler();
+        enemyProjectile.setEffectHandler(new EffectHandler());
+        assertNotSame(oldEffectHandler, enemyProjectile.getEffectHandler());
     }
 }

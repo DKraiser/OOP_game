@@ -13,10 +13,26 @@ public abstract class Entity extends GameObject implements Damageable {
     private Collider collider;
 
     public int getHealth() { return health; }
-    public void setHealth(int health) { this.health = health; }
+    public void setHealth(int health) {
+        if (health < 0) {
+            throw new IllegalArgumentException("Health cannot be negative");
+        }
+        if (health > maxHealth) {
+            health = maxHealth;
+        }
+        this.health = health;
+    }
 
     public int getMaxHealth() { return maxHealth; }
-    public void setMaxHealth(int maxHealth) { this.maxHealth = maxHealth; }
+    public void setMaxHealth(int maxHealth) {
+        if (maxHealth <= 0) {
+            throw new IllegalArgumentException("Max health cannot be negative");
+        }
+        if (maxHealth < health) {
+            health = maxHealth;
+        }
+        this.maxHealth = maxHealth;
+    }
 
     public Collider getCollider() {
         return collider;
