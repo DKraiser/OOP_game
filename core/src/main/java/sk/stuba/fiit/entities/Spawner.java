@@ -52,18 +52,24 @@ public class Spawner extends Entity implements Cloneable, Tickable {
     @Override
     public void die() {
         EnemyKilledEvent.invokeEvent(getPrice());
+        setAlive(false);
     }
 
     @Override
     public void takeDamage(int damage) {
-
+        setHealth(getHealth() - damage);
+        if (getHealth() <= 0) {
+            die();
+        }
     }
 
     @Override
     public Spawner clone() {
         Spawner clone = new Spawner(getName(), getDescription(), getTexture(), getHealth(), getMaxHealth(), null, getPrice(), spawnTimer != null ? spawnTimer.clone() : null);
         if (!MyGame.TESTMODE) {
-            clone.getSprite().set(getSprite());
+            if (getSprite() != null) {
+                clone.getSprite().set(getSprite());
+            }
         }
         return clone;
     }

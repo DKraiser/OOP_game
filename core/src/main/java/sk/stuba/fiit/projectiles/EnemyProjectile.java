@@ -5,6 +5,8 @@ import com.badlogic.gdx.math.Vector2;
 import sk.stuba.fiit.MyGame;
 import sk.stuba.fiit.effects.Effect;
 import sk.stuba.fiit.EffectHandler;
+import sk.stuba.fiit.entities.Entity;
+import sk.stuba.fiit.entities.player.Player;
 import sk.stuba.fiit.events.EnemyKilledEvent;
 import sk.stuba.fiit.interfaces.Damageable;
 
@@ -37,13 +39,13 @@ public class EnemyProjectile extends Projectile implements Damageable {
 
     @Override
     public void die() {
-        System.out.println("Enemy projectile destroyed");
+        setAlive(false);
         EnemyKilledEvent.invokeEvent(getPrice());
     }
 
     @Override
     public void takeDamage(int damage) {
-        setHealth(getHealth() - damage);
+        setHealth(Math.max(getHealth() - damage, 0));
         if (getHealth() <= 0)
             die();
     }
@@ -75,11 +77,11 @@ public class EnemyProjectile extends Projectile implements Damageable {
         this.price = price;
     }
 
-    public void takeEffect(Effect effect) {
-
-    }
-
-    public void updateEffects(float delta) {
-
+    @Override
+    public void onCollision(Entity collisionEntity) {
+        if (collisionEntity instanceof Player) {
+            attack(collisionEntity, this.getDamage());
+            setAlive(false);
+        }
     }
 }

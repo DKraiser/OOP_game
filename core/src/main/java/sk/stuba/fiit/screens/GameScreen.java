@@ -78,8 +78,7 @@ public class GameScreen implements Screen{
         tempProjectileEnvironment = new ArrayList<Projectile>();
         spawnerEnvironment = new ArrayList<Spawner>();
         tempSpawnerEnvironment = new ArrayList<Spawner>();
-        for (int i = 0; i < 5; i++)
-        {
+        for (int i = 0; i < 5; i++) {
             spawnerEnvironment.add(asteroidSpawnerFactory.create());
             float x = random.nextFloat(-screenWidth / 2, screenWidth / 2);
             float y = (float)(Math.sqrt(Math.pow(1.3f * screenWidth / 2, 2) - Math.pow(x, 2)) * Math.pow(-1, random.nextInt(0, 2)));
@@ -100,59 +99,95 @@ public class GameScreen implements Screen{
     public void render(float deltaTime) {
         batch.setProjectionMatrix(camera.combined);
         shapeRenderer.setProjectionMatrix(camera.combined);
-        input();
-        batch.begin();
-        background.getSprite().draw(batch);
-        player.getSprite().draw(batch);
 
-        for (Spawner s : spawnerEnvironment)
-        {
-            s.tick(deltaTime);
-            s.attack(player, projectileEnvironment);
+        for (Spawner spawner : spawnerEnvironment) {
+            spawner.tick(deltaTime);
+            spawner.attack(player, projectileEnvironment);
+        }
+        player.tick(deltaTime);
+
+        //Move projectile
+        if (!projectileEnvironment.isEmpty()) {
+            for (Projectile projectile : projectileEnvironment) {
+                projectile.move(deltaTime);
+
+                if (Math.abs(projectile.getPosition().x - screenWidth / 2) > screenWidth / 2 * 1.5f) {
+                    projectile.setAlive(false);
+                }
+            }
         }
 
-        if (projectileEnvironment.size() > 0) {
+        input();
+
+        //Detect collisions
+        if (!projectileEnvironment.isEmpty()) {
+            for (Projectile projectile : projectileEnvironment) {
+                for (Projectile collisionProjectile : projectileEnvironment) {
+                    if (projectile.getCollider().overlaps(collisionProjectile.getCollider()) && projectile != collisionProjectile) {
+                        projectile.onCollision(collisionProjectile);
+                    }
+                }
+
+                for (Spawner spawner : spawnerEnvironment) {
+                    if (spawner.getCollider() == null)
+                        continue;
+                    if (projectile.getCollider().overlaps(spawner.getCollider())) {
+                        projectile.onCollision(spawner);
+                    }
+                }
+                if (projectile.getCollider().overlaps(player.getCollider())) {
+                    projectile.onCollision(player);
+                }
+            }
+        }
+
+        //Remove objects
+        if (!projectileEnvironment.isEmpty()) {
             tempProjectileEnvironment.clear();
             tempProjectileEnvironment.addAll(projectileEnvironment);
 
             for (Projectile projectile : projectileEnvironment) {
-                projectile.getSprite().draw(batch);
-                projectile.move(deltaTime);
-                if (Math.abs(projectile.getPosition().x - screenWidth / 2) > screenWidth / 2 * 1.5f) {
+                if (!projectile.isAlive())
+                {
                     tempProjectileEnvironment.remove(projectile);
                 }
-
-                if (projectile instanceof EnemyProjectile && projectile.getCollider().overlaps(player.getCollider())) {
-                    projectile.getAttacker().attack(player, projectile.getDamage());
-                    tempProjectileEnvironment.remove(projectile);
-                }
-
-                if (projectile instanceof PlayerProjectile) {
-                    for (Projectile enemyProjectile : projectileEnvironment) {
-                        if (enemyProjectile instanceof EnemyProjectile && projectile.getCollider().overlaps(enemyProjectile.getCollider())) {
-                            projectile.getAttacker().attack(enemyProjectile, projectile.getDamage());
-                            tempProjectileEnvironment.remove(projectile);
-                        }
-                    }
-                }
-
-            }
-            for (Projectile projectile : projectileEnvironment) {
-                if (projectile.getHealth() <= 0)
-                    tempProjectileEnvironment.remove(projectile);
             }
 
             projectileEnvironment.clear();
-            if (tempProjectileEnvironment.size() > 0) {
+            if (!tempProjectileEnvironment.isEmpty()) {
                 projectileEnvironment.addAll(tempProjectileEnvironment);
             }
-
         }
-        player.tick(deltaTime);
+        if (!spawnerEnvironment.isEmpty()) {
+            tempSpawnerEnvironment.clear();
+            tempSpawnerEnvironment.addAll(spawnerEnvironment);
 
+            for (Spawner spawner : spawnerEnvironment) {
+                if (!spawner.isAlive()) {
+                    tempSpawnerEnvironment.remove(spawner);
+                }
+            }
+
+            spawnerEnvironment.clear();
+            if (!tempSpawnerEnvironment.isEmpty()) {
+                spawnerEnvironment.addAll(tempSpawnerEnvironment);
+            }
+        }
+
+        //Draw
+        batch.begin();
+        background.getSprite().draw(batch);
+        player.getSprite().draw(batch);
+        if (!projectileEnvironment.isEmpty()) {
+            for (Projectile projectile : projectileEnvironment) {
+                projectile.getSprite().draw(batch);
+            }
+        }
         if (!spawnerEnvironment.isEmpty()) {
             for (Spawner spawner : spawnerEnvironment) {
-                spawner.getSprite().draw(batch);
+                if (spawner.getSprite() != null) {
+                    spawner.getSprite().draw(batch);
+                }
             }
         }
         batch.end();

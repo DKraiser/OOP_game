@@ -11,6 +11,7 @@ import sk.stuba.fiit.effects.ParalyseEffect;
 import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
 import sk.stuba.fiit.interfaces.Effectable;
 import sk.stuba.fiit.interfaces.Tickable;
+import sk.stuba.fiit.projectiles.EnemyProjectile;
 import sk.stuba.fiit.strategies.DirectionRangedAttackingStrategy;
 import sk.stuba.fiit.EffectHandler;
 import sk.stuba.fiit.entities.Entity;

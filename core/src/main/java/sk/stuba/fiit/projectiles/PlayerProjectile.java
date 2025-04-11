@@ -4,6 +4,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import sk.stuba.fiit.MyGame;
 import sk.stuba.fiit.effects.Effect;
+import sk.stuba.fiit.entities.Entity;
+import sk.stuba.fiit.entities.Spawner;
 
 import java.util.List;
 
@@ -25,12 +27,16 @@ public class PlayerProjectile extends Projectile implements Cloneable{
     }
 
     @Override
-    public void takeDamage(int damage) {
-
-    }
+    public void takeDamage(int damage) { }
 
     @Override
-    public void die() {
+    public void die() { }
 
+    @Override
+    public void onCollision(Entity collisionEntity) {
+        if (collisionEntity instanceof EnemyProjectile || collisionEntity instanceof Spawner) {
+            getAttacker().attack(collisionEntity, getDamage());
+            setAlive(false);
+        }
     }
 }
