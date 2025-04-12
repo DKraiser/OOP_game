@@ -73,6 +73,13 @@ public class Player extends Entity implements Damageable, Tickable, Effectable {
         this.healingMechanism = healingMechanism;
     }
 
+    public RangedAttacking getAttackStrategy() {
+        return rangedAttacking;
+    }
+    public void setRangedAttacking(RangedAttacking rangedAttacking) {
+        this.rangedAttacking = rangedAttacking;
+    }
+
     @Override
     public void takeEffect(Effect effect) {
         effectHandler.takeEffect(effect);
@@ -84,9 +91,7 @@ public class Player extends Entity implements Damageable, Tickable, Effectable {
     }
 
     public void attack(Vector2 direction, List<Projectile> projectileEnvironment) {
-        if (effectHandler.getEffect(ParalyseEffect.class) == null) {
-            rangedAttacking.attack(direction, projectileEnvironment, weapon);
-        }
+        rangedAttacking.attack(direction, projectileEnvironment, weapon);
     }
 
     @Override

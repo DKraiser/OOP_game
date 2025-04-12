@@ -8,29 +8,29 @@ import sk.stuba.fiit.Weapon;
 import sk.stuba.fiit.factories.projectilefactories.EnemyProjectileFactory;
 import sk.stuba.fiit.projectiles.EnemyProjectile;
 
-public class AsteroidEnemyWeaponFactory extends WeaponFactory {
+public class SmallAsteroidEnemyWeaponFactory extends WeaponFactory {
     @Override
     public Weapon create(Object... args) {
         projectileFactory = new EnemyProjectileFactory(projectileTemplate, this.radiusOfAttacker, this.positionOfAttacker);
 
-        weapon = new Weapon("Asteroid Weapon", "", null, projectileFactory);
+        weapon = new Weapon("Small Asteroid Weapon", "", null, projectileFactory);
         return weapon;
     }
 
     @Override
     public void adjustProjectileTemplate() {
-        projectileTemplate = new EnemyProjectile("", "", new Texture("asteroid.png"), 1, 1, null, 3f, 1, 3);
-        projectileTemplate.setSize(0.8f,0.8f);
+        projectileTemplate = new EnemyProjectile("Small Asteroid", "", new Texture("asteroid.png"), 1, 1, null, 3.5f, 1, 2);
+        projectileTemplate.setSize(0.4f,0.4f);
         projectileTemplate.setOrigin(projectileTemplate.getWidth() / 2, projectileTemplate.getHeight() / 2);
 
         projectileTemplate.setCollider(new Collider(new Circle(new Vector2(projectileTemplate.getPosition()), projectileTemplate.getHeight() / 2)));
     }
 
-    public AsteroidEnemyWeaponFactory(float radiusOfAttacker, Vector2 positionOfAttacker) {
+    public SmallAsteroidEnemyWeaponFactory(float radiusOfAttacker, Vector2 positionOfAttacker) {
         super(radiusOfAttacker, positionOfAttacker);
     }
 
-    public AsteroidEnemyWeaponFactory() {
+    public SmallAsteroidEnemyWeaponFactory() {
         super();
     }
 }

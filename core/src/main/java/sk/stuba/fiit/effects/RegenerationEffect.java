@@ -30,4 +30,9 @@ public class RegenerationEffect extends Effect{
     public void applyEffect() {
 
     }
+
+    @Override
+    public void removeEffect() {
+
+    }
 }

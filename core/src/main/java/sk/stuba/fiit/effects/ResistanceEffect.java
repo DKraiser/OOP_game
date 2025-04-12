@@ -30,4 +30,9 @@ public class ResistanceEffect extends Effect{
     public void applyEffect() {
 
     }
+
+    @Override
+    public void removeEffect() {
+
+    }
 }

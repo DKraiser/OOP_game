@@ -70,6 +70,7 @@ public class Spawner extends Entity implements Cloneable, Tickable {
             if (getSprite() != null) {
                 clone.getSprite().set(getSprite());
             }
+            clone.setSize(getWidth(), getHeight());
         }
         return clone;
     }

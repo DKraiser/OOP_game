@@ -38,9 +38,11 @@ public class ProjectileFactory implements Factory<Projectile> {
         if (directionVector.x < 0) rotation += (float)Math.PI;
         newProjectile.setRotation((float)(rotation * 180 / Math.PI));
 
-        newProjectile.setPosition(new Vector2(positionOfAttacker.x - projectileTemplate.getWidth() / 2, positionOfAttacker.y - projectileTemplate.getHeight() / 2).add(directionVector.scl(1.5f * radiusOfAttacker)));
+        newProjectile.setPosition(new Vector2(positionOfAttacker.x - projectileTemplate.getWidth() / 2, positionOfAttacker.y - projectileTemplate.getHeight() / 2).add(new Vector2(directionVector).scl(1.5f * radiusOfAttacker)));
 
-        newProjectile.getCollider().setPosition(new Vector2(positionOfAttacker.x - projectileTemplate.getWidth() / 2, positionOfAttacker.y - projectileTemplate.getHeight() / 2).add(directionVector.scl(1.5f * radiusOfAttacker)).add(projectileTemplate.getWidth() / 2, projectileTemplate.getHeight() / 2).add(directionVector.scl(projectileTemplate.getWidth() * 0.8f)));
+//        newProjectile.getCollider().setPosition(new Vector2(positionOfAttacker.x - projectileTemplate.getWidth() / 2, positionOfAttacker.y - projectileTemplate.getHeight() / 2).add(new Vector2(directionVector).scl(1.5f * radiusOfAttacker)).add(projectileTemplate.getWidth() / 2, projectileTemplate.getHeight() / 2).add(new Vector2(directionVector).scl(projectileTemplate.getWidth() * 0.8f)));
+
+        newProjectile.getCollider().setPosition(newProjectile.getPosition().cpy().add(new Vector2(newProjectile.getWidth(), newProjectile.getHeight()).scl(0.25f)));
 
         log();
 

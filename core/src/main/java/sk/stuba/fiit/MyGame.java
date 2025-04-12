@@ -3,10 +3,11 @@ package sk.stuba.fiit;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import sk.stuba.fiit.screens.GameScreen;
+import sk.stuba.fiit.screens.ShopScreen;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class MyGame extends Game {
-    public static final boolean TESTMODE = true;
+    public static final boolean TESTMODE = false;
     private SpriteBatch batch;
 
     @Override

@@ -72,7 +72,9 @@ public class GameObject implements Disposable {
         this.width = width;
         this.height = height;
         if (!MyGame.TESTMODE) {
-            sprite.setSize(width, height);
+            if (sprite != null) {
+                sprite.setSize(width, height);
+            }
         }
     }
 
@@ -87,7 +89,9 @@ public class GameObject implements Disposable {
     public void translate(Vector2 translation) {
         position.add(translation);
         if (!MyGame.TESTMODE) {
-            sprite.translate(translation);
+            if (sprite != null) {
+                sprite.translate(translation);
+            }
         }
     }
 

@@ -29,12 +29,18 @@ public abstract class Effect implements Cloneable{
     public void setDuration(float duration) { this.duration = duration; }
     public void setTarget(Entity target) { this.target = target; }
 
-    public void tickEffect(float deltaTime) { remainingTime -= deltaTime; }
+    public void tickEffect(float deltaTime) {
+        remainingTime -= deltaTime;
+        if (remainingTime <= 0) {
+            removeEffect();
+        }
+    }
 
     @Override
     public abstract Effect clone();
 
     public abstract void applyEffect();
+    public abstract void removeEffect();
 
     public Effect(String name, String description, int level, boolean isFinite, float duration, float remainingTime, Entity target) {
         this.name = name;
