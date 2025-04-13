@@ -11,21 +11,29 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import sk.stuba.fiit.*;
+import sk.stuba.fiit.effects.ParalyseEffect;
 import sk.stuba.fiit.entities.Spawner;
 import sk.stuba.fiit.entities.player.Player;
 import sk.stuba.fiit.events.EnemyKilledEvent;
-import sk.stuba.fiit.factories.enemyfactories.AsteroidSpawnerFactory;
+import sk.stuba.fiit.factories.enemyfactories.SmallAsteroidSpawnerFactory;
 import sk.stuba.fiit.factories.enemyfactories.SpawnerFactory;
 import sk.stuba.fiit.factories.weaponfactories.BasicPlayerWeaponFactory;
 import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
-import sk.stuba.fiit.projectiles.EnemyProjectile;
-import sk.stuba.fiit.projectiles.PlayerProjectile;
+import sk.stuba.fiit.interfaces.Wave;
 import sk.stuba.fiit.projectiles.Projectile;
+import sk.stuba.fiit.waves.BigAsteroidWave;
+import sk.stuba.fiit.waves.SmallAsteroidWave;
 
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -34,32 +42,36 @@ public class GameScreen implements Screen{
     public static final float screenWidth = 8;
     public static final float screenHeight = 6;
     private final Game game;
-    private final SpriteBatch batch;
 
+    private SpriteBatch batch;
+    private List<Texture> undisposedTextures;
     private GameObject background;
     private Viewport viewport;
     private Camera camera;
     private Logger logger;
-
-    private Player player;
-    private WeaponFactory playerWeaponFactory;
-    private Vector3 touchPoint;
     private Random random;
 
-    List<Projectile> projectileEnvironment;
-    List<Projectile> tempProjectileEnvironment;
-    List<Spawner> spawnerEnvironment;
-    List<Spawner> tempSpawnerEnvironment;
-    ShapeRenderer shapeRenderer;
+    private Player player;
 
-    private SpawnerFactory asteroidSpawnerFactory;
+    private Wave currentWave;
+    private List<Wave> waves;
+    private Timer waveTimer;
+    private List<Projectile> projectileEnvironment;
+    private List<Projectile> tempProjectileEnvironment;
+    private List<Spawner> spawnerEnvironment;
+    private List<Spawner> tempSpawnerEnvironment;
+    private ShapeRenderer shapeRenderer;
 
-    public GameScreen(Game game) {
+    private InputMultiplexer inputMultiplexer;
+    private Stage stage;
+    private Skin skin;
+
+    public GameScreen(Game game, Player player, SpriteBatch batch, List<Texture> undisposedTextures) {
         this.game = game;
         random = new Random();
         random.setSeed(System.currentTimeMillis());
 
-        Gdx.app.setLogLevel(Application.LOG_INFO);
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
         logger = new Logger("GameScreen", Application.LOG_DEBUG);
 
         camera = new OrthographicCamera();
@@ -67,31 +79,68 @@ public class GameScreen implements Screen{
         camera.position.set(screenWidth / 2, screenHeight / 2, 0);
         camera.update();
 
-        playerWeaponFactory = new BasicPlayerWeaponFactory();
-        player = new Player("P", "Player", new Texture("earth.png"), 1, new Vector2(screenWidth / 2, screenHeight / 2), 5, 5, 1, new Timer(10), 0, playerWeaponFactory);
-
+        this.player = player;
         EnemyKilledEvent.setPlayer(player);
+        player.updatePosition(new Vector2(screenWidth / 2, screenHeight / 2));
 
-        asteroidSpawnerFactory = new AsteroidSpawnerFactory();
+        stage = new Stage(new ScreenViewport());
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
+        inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(stage);
+        inputMultiplexer.addProcessor(new InputAdapter() {
+            @Override
+            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                if (button == Input.Buttons.LEFT) {
+                    Vector3 touchPoint;
+                    Vector2 direction;
+
+                    touchPoint = camera.unproject(new Vector3(screenX, screenY, 0));
+                    direction = player.findDirectionVector(new Vector2(touchPoint.x, touchPoint.y));
+                    player.attack(direction, projectileEnvironment);
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean keyDown(int keycode) {
+                if (keycode == Input.Keys.ESCAPE) {
+                    try {
+                        FileOutputStream fos = new FileOutputStream("serialized/player.json");
+                        ObjectOutputStream oos = new ObjectOutputStream(fos);
+                        oos.writeObject(player);
+                        oos.close();
+                        fos.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Gdx.app.postRunnable(() -> {
+                        dispose();
+                        Gdx.app.exit();
+                    });
+                    return true;
+                }
+                return false;
+            }
+        });
+        Gdx.input.setInputProcessor(inputMultiplexer);
 
         projectileEnvironment = new ArrayList<Projectile>();
         tempProjectileEnvironment = new ArrayList<Projectile>();
         spawnerEnvironment = new ArrayList<Spawner>();
         tempSpawnerEnvironment = new ArrayList<Spawner>();
-        for (int i = 0; i < 5; i++) {
-            spawnerEnvironment.add(asteroidSpawnerFactory.create());
-            float x = random.nextFloat(-screenWidth / 2, screenWidth / 2);
-            float y = (float)(Math.sqrt(Math.pow(1.3f * screenWidth / 2, 2) - Math.pow(x, 2)) * Math.pow(-1, random.nextInt(0, 2)));
-            spawnerEnvironment.getLast().setPosition(new Vector2(x + screenWidth / 2, y + screenHeight / 2));
-            spawnerEnvironment.getLast().getWeapon().update(new Vector2(spawnerEnvironment.getLast().getPosition()), spawnerEnvironment.getLast().getHeight() / 2);
-            logger.info("Spawner: " + i + "position: " + spawnerEnvironment.getLast().getPosition());
-        }
+
+        waves = new ArrayList<>();
+        waves.add(new SmallAsteroidWave(5, screenWidth / 2, spawnerEnvironment));
+        waves.add(new BigAsteroidWave(5, screenWidth / 2, spawnerEnvironment));
+        waveTimer = new Timer(10, 3);
         shapeRenderer = new ShapeRenderer();
 
         background = new GameObject("","", new Texture("space_background.jpg"));
         background.setSize(screenWidth, screenHeight);
 
-        batch = ((MyGame) game).getBatch();
+        this.batch = batch;
+        this.undisposedTextures = undisposedTextures;
         logger.info("Initialized");
     }
 
@@ -99,6 +148,15 @@ public class GameScreen implements Screen{
     public void render(float deltaTime) {
         batch.setProjectionMatrix(camera.combined);
         shapeRenderer.setProjectionMatrix(camera.combined);
+
+        waveTimer.tick(deltaTime);
+        if (waveTimer.isElapsed())
+        {
+            if (currentWave != null)
+                currentWave.retract();
+            currentWave = waves.get(random.nextInt(waves.size()));
+            currentWave.summon();
+        }
 
         for (Spawner spawner : spawnerEnvironment) {
             spawner.tick(deltaTime);
@@ -116,8 +174,6 @@ public class GameScreen implements Screen{
                 }
             }
         }
-
-        input();
 
         //Detect collisions
         if (!projectileEnvironment.isEmpty()) {
@@ -137,6 +193,7 @@ public class GameScreen implements Screen{
                 }
                 if (projectile.getCollider().overlaps(player.getCollider())) {
                     projectile.onCollision(player);
+                    player.onCollision(projectile);
                 }
             }
         }
@@ -181,16 +238,25 @@ public class GameScreen implements Screen{
         if (!projectileEnvironment.isEmpty()) {
             for (Projectile projectile : projectileEnvironment) {
                 projectile.getSprite().draw(batch);
+                if (!undisposedTextures.contains(projectile.getTexture())) {
+                    undisposedTextures.add(projectile.getTexture());
+                }
             }
         }
         if (!spawnerEnvironment.isEmpty()) {
             for (Spawner spawner : spawnerEnvironment) {
                 if (spawner.getSprite() != null) {
                     spawner.getSprite().draw(batch);
+                    if (!undisposedTextures.contains(spawner.getTexture())) {
+                        undisposedTextures.add(spawner.getTexture());
+                    }
                 }
             }
         }
         batch.end();
+
+        stage.act(deltaTime);
+        stage.draw();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         for (Projectile projectile : projectileEnvironment) {
@@ -200,23 +266,6 @@ public class GameScreen implements Screen{
         shapeRenderer.end();
 
         camera.update();
-    }
-
-    public void input() {
-        touchPoint = camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            Vector2 direction = player.findDirectionVector(new Vector2(touchPoint.x, touchPoint.y));
-            player.attack(direction, projectileEnvironment);
-        }
-        else if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
-            player.setPosition(new Vector2(touchPoint.x - player.getWidth() / 2, touchPoint.y - player.getHeight() / 2));
-            player.getWeapon().update(new Vector2(player.getPosition()).add(new Vector2(player.getWidth() / 2, player.getHeight() / 2)), player.getHeight() / 2);
-        }
-        else if (Gdx.input.isKeyJustPressed(Input.Keys.TAB)) {
-            for (Spawner spawner : spawnerEnvironment) {
-                spawner.attack(player, projectileEnvironment);
-            }
-        }
     }
 
     public void drawCollider(Collider collider) {
@@ -255,12 +304,18 @@ public class GameScreen implements Screen{
 
     @Override
     public void dispose() {
-        batch.dispose();
+        background.dispose();
+        shapeRenderer.dispose();
+        skin.dispose();
+        stage.dispose();
     }
 
     @Override
     public void show() {
-
+        Button button = new Button(skin);
+        button.setPosition(4, 4);
+        button.setSize(50,50);
+        stage.addActor(button);
     }
     //endregion
 }
