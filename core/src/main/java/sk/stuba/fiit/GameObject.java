@@ -5,11 +5,14 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
 
+import java.io.Serializable;
+
 public class GameObject implements Disposable {
     private String name;
     private String description;
-    private Texture texture;
-    private SpriteExtended sprite;
+    private transient Texture texture;
+    private transient SpriteExtended sprite;
+    private String texturePath;
     private Vector2 position;
     private Vector2 origin;
     private float width;
@@ -106,6 +109,8 @@ public class GameObject implements Disposable {
         this.height = 1;
         this.rotation = 0;
     }
+
+    public GameObject() { }
 
     @Override
     public void dispose() {

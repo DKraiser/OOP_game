@@ -8,6 +8,7 @@ import sk.stuba.fiit.Collider;
 import sk.stuba.fiit.Weapon;
 import sk.stuba.fiit.effects.Effect;
 import sk.stuba.fiit.effects.ParalyseEffect;
+import sk.stuba.fiit.factories.weaponfactories.BasicPlayerWeaponFactory;
 import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
 import sk.stuba.fiit.interfaces.Effectable;
 import sk.stuba.fiit.interfaces.Tickable;
@@ -20,21 +21,22 @@ import sk.stuba.fiit.interfaces.Damageable;
 import sk.stuba.fiit.projectiles.Projectile;
 import sk.stuba.fiit.Timer;
 
+import java.io.Serializable;
 import java.util.Dictionary;
 import java.util.List;
+import java.util.Random;
 
 import static java.lang.Math.max;
 
-public class Player extends Entity implements Damageable, Tickable, Effectable {
+public class Player extends Entity implements Damageable, Tickable, Effectable , Serializable, Cloneable{
     private int balance;
     private Weapon weapon;
 
     private EffectHandler effectHandler;
     private RangedAttacking rangedAttacking;
     private Timer healingTimer;
-    private Runnable healingMechanism;
     private int healingPerInterval;
-    private Logger logger;
+    private transient Logger logger;
 
     public Weapon getWeapon() {
         return weapon;
@@ -66,13 +68,6 @@ public class Player extends Entity implements Damageable, Tickable, Effectable {
         this.healingTimer = timer;
     }
 
-    public Runnable getHealingMechanism() {
-        return healingMechanism;
-    }
-    public void setHealingMechanism(Runnable healingMechanism) {
-        this.healingMechanism = healingMechanism;
-    }
-
     public RangedAttacking getAttackStrategy() {
         return rangedAttacking;
     }
@@ -97,6 +92,7 @@ public class Player extends Entity implements Damageable, Tickable, Effectable {
     @Override
     public void die() {
         logger.info("Player was killed");
+        setAlive(false);
     }
 
     @Override
@@ -120,7 +116,7 @@ public class Player extends Entity implements Damageable, Tickable, Effectable {
 
     public void heal() {
         if (healingTimer.isElapsed()) {
-            healingMechanism.run();
+            setHealth(getHealth() + healingPerInterval);
             logger.info("Current health: " + getHealth());
         }
     }
@@ -132,12 +128,36 @@ public class Player extends Entity implements Damageable, Tickable, Effectable {
         updateEffects(deltaTime);
     }
 
+    @Override
+    public void onCollision(Entity collisionTarget) {
+        if (collisionTarget instanceof EnemyProjectile) {
+            Random random = new Random();
+            random.setSeed(System.currentTimeMillis());
+            if (random.nextFloat(0f, 1f) > 0.9f) {
+                takeEffect(new ParalyseEffect(true, 1.5f, this));
+                logger.info("Paralyse");
+            }
+        }
+    }
+
+    public void updatePosition(Vector2 position) {
+        setPosition(new Vector2(position).sub(new Vector2(getWidth(), getHeight()).scl(0.5f)));
+        setCollider(new Collider(new Circle(new Vector2(position), getHeight() / 2)));
+        weapon.update(getPosition().cpy().add(getWidth() / 2, getHeight() / 2), getHeight() / 2);
+    }
+
+    public void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
     public Player(String name, String description, Texture texture, float size, Vector2 position, int health, int maxHealth, int healingPerInterval, Timer timer, int balance, WeaponFactory weaponFactory) {
         super(name, description, texture, health, maxHealth);
         setSize(size, size);
-        setPosition(new Vector2(position).sub(new Vector2(getWidth(), getHeight()).scl(0.5f)));
-
-        weaponFactory.setPositionOfAttacker(getPosition().cpy().add(getWidth() / 2, getHeight() / 2));
+        if (position != null) {
+            setPosition(new Vector2(position).sub(new Vector2(getWidth(), getHeight()).scl(0.5f)));
+            setCollider(new Collider(new Circle(new Vector2(position), getHeight() / 2)));
+            weaponFactory.setPositionOfAttacker(getPosition().cpy().add(getWidth() / 2, getHeight() / 2));
+        }
         weaponFactory.setRadiusOfAttacker(getHeight() / 2);
         this.weapon = weaponFactory.create();
         this.effectHandler = new EffectHandler();
@@ -145,10 +165,18 @@ public class Player extends Entity implements Damageable, Tickable, Effectable {
 
         this.healingTimer = timer;
         this.healingPerInterval = healingPerInterval;
-        this.healingMechanism = (() -> this.setHealth(getHealth() + healingPerInterval));
 
         rangedAttacking = new DirectionRangedAttackingStrategy();
-        setCollider(new Collider(new Circle(new Vector2(position), getHeight() / 2)));
+
         logger = new Logger("Player", Logger.INFO);
+    }
+
+    @Override
+    public Player clone() {
+        return new Player(getName(), getDescription(), getTexture(), getHeight(), getPosition().cpy(), getHealth(), getMaxHealth(), getHealingPerInterval(), getHealingTimer().clone(), getBalance(), new BasicPlayerWeaponFactory());
+    }
+
+    public Player() {
+        super();
     }
 }

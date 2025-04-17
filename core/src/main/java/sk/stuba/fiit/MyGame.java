@@ -1,12 +1,17 @@
 package sk.stuba.fiit;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Logger;
+import org.lwjgl.opengl.GL20;
 import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.enums.ScreenType;
 import sk.stuba.fiit.factories.weaponfactories.BasicPlayerWeaponFactory;
 import sk.stuba.fiit.screens.GameScreen;
+import sk.stuba.fiit.screens.RestartScreen;
+import sk.stuba.fiit.screens.ShopScreen;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -20,6 +25,10 @@ public class MyGame extends Game {
     private SpriteBatch batch;
     private Player player;
 
+    private GameScreen gameScreen;
+    private RestartScreen restartScreen;
+    private ShopScreen shopScreen;
+
     @Override
     public void create() {
         undisposedTextures = new ArrayList<Texture>();
@@ -30,9 +39,14 @@ public class MyGame extends Game {
             player.setLogger(new Logger("Player", Logger.INFO));
         } catch (Exception e) {
             System.out.println("Couldn't deserialize player");
-            player = defaultplayer;
+            e.printStackTrace();
+            player = defaultplayer.clone();
         }
-        setScreen(new GameScreen(this, player, batch,undisposedTextures));
+
+        gameScreen = new GameScreen(this, player, batch, undisposedTextures);
+        shopScreen = new ShopScreen(this, batch);
+        restartScreen = new RestartScreen(this, batch);
+        setScreen(gameScreen);
     }
 
     @Override
@@ -56,5 +70,31 @@ public class MyGame extends Game {
         ois.close();
         fis.close();
         return deserialiazedPlayer;
+    }
+
+    public void changeScreen(ScreenType screenType) {
+        setScreen(switch(screenType) {
+            case GAME -> gameScreen;
+            case SHOP -> shopScreen;
+            case RESTART -> restartScreen;
+        });
+    }
+
+    public void reloadScreen(ScreenType screenType) {
+        switch (screenType) {
+            case GAME:
+                gameScreen.dispose();
+                player = defaultplayer.clone();
+                gameScreen = new GameScreen(this, player, batch, undisposedTextures);
+                break;
+            case SHOP:
+                shopScreen.dispose();
+                shopScreen = new ShopScreen(this, batch);
+                break;
+            case RESTART:
+                restartScreen.dispose();
+                restartScreen = new RestartScreen(this, batch);
+                break;
+        }
     }
 }

@@ -12,21 +12,17 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Logger;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
+import com.badlogic.gdx.utils.viewport.*;
+
+import org.lwjgl.opengl.GL20;
 import sk.stuba.fiit.*;
-import sk.stuba.fiit.effects.ParalyseEffect;
 import sk.stuba.fiit.entities.Spawner;
 import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.enums.ScreenType;
 import sk.stuba.fiit.events.EnemyKilledEvent;
-import sk.stuba.fiit.factories.enemyfactories.SmallAsteroidSpawnerFactory;
-import sk.stuba.fiit.factories.enemyfactories.SpawnerFactory;
-import sk.stuba.fiit.factories.weaponfactories.BasicPlayerWeaponFactory;
-import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
 import sk.stuba.fiit.interfaces.Wave;
 import sk.stuba.fiit.projectiles.Projectile;
 import sk.stuba.fiit.waves.BigAsteroidWave;
@@ -41,15 +37,22 @@ import java.util.Random;
 public class GameScreen implements Screen{
     public static final float screenWidth = 8;
     public static final float screenHeight = 6;
-    private final Game game;
 
+    private final MyGame game;
     private SpriteBatch batch;
     private List<Texture> undisposedTextures;
-    private GameObject background;
-    private Viewport viewport;
-    private Camera camera;
+    private InputMultiplexer inputMultiplexer;
     private Logger logger;
     private Random random;
+
+    private Viewport gameViewport;
+    private Camera gameCamera;
+    private GameObject background;
+
+    private Stage uiStage;
+    private Skin uiSkin;
+    private Camera uiCamera;
+    private Viewport uiViewport;
 
     private Player player;
 
@@ -62,68 +65,27 @@ public class GameScreen implements Screen{
     private List<Spawner> tempSpawnerEnvironment;
     private ShapeRenderer shapeRenderer;
 
-    private InputMultiplexer inputMultiplexer;
-    private Stage stage;
-    private Skin skin;
-
-    public GameScreen(Game game, Player player, SpriteBatch batch, List<Texture> undisposedTextures) {
+    public GameScreen(MyGame game, Player player, SpriteBatch batch, List<Texture> undisposedTextures) {
         this.game = game;
+
+        this.player = player;
+        EnemyKilledEvent.setPlayer(player);
+        player.updatePosition(new Vector2(screenWidth / 2, screenHeight / 2));
+
+        this.batch = batch;
+        this.undisposedTextures = undisposedTextures;
+
         random = new Random();
         random.setSeed(System.currentTimeMillis());
 
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
         logger = new Logger("GameScreen", Application.LOG_DEBUG);
 
-        camera = new OrthographicCamera();
-        viewport = new FitViewport(screenWidth, screenHeight, camera);
-        camera.position.set(screenWidth / 2, screenHeight / 2, 0);
-        camera.update();
+        gameCamera = new OrthographicCamera();
+        gameViewport = new FitViewport(screenWidth, screenHeight, gameCamera);
 
-        this.player = player;
-        EnemyKilledEvent.setPlayer(player);
-        player.updatePosition(new Vector2(screenWidth / 2, screenHeight / 2));
-
-        stage = new Stage(new ScreenViewport());
-        skin = new Skin(Gdx.files.internal("uiskin.json"));
-        inputMultiplexer = new InputMultiplexer();
-        inputMultiplexer.addProcessor(stage);
-        inputMultiplexer.addProcessor(new InputAdapter() {
-            @Override
-            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                if (button == Input.Buttons.LEFT) {
-                    Vector3 touchPoint;
-                    Vector2 direction;
-
-                    touchPoint = camera.unproject(new Vector3(screenX, screenY, 0));
-                    direction = player.findDirectionVector(new Vector2(touchPoint.x, touchPoint.y));
-                    player.attack(direction, projectileEnvironment);
-                    return true;
-                }
-                return false;
-            }
-
-            @Override
-            public boolean keyDown(int keycode) {
-                if (keycode == Input.Keys.ESCAPE) {
-                    try {
-                        FileOutputStream fos = new FileOutputStream("serialized/player.json");
-                        ObjectOutputStream oos = new ObjectOutputStream(fos);
-                        oos.writeObject(player);
-                        oos.close();
-                        fos.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    Gdx.app.postRunnable(() -> {
-                        dispose();
-                        Gdx.app.exit();
-                    });
-                    return true;
-                }
-                return false;
-            }
-        });
-        Gdx.input.setInputProcessor(inputMultiplexer);
+        uiCamera = new OrthographicCamera();
+        uiViewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), uiCamera);
 
         projectileEnvironment = new ArrayList<Projectile>();
         tempProjectileEnvironment = new ArrayList<Projectile>();
@@ -134,24 +96,19 @@ public class GameScreen implements Screen{
         waves.add(new SmallAsteroidWave(5, screenWidth / 2, spawnerEnvironment));
         waves.add(new BigAsteroidWave(5, screenWidth / 2, spawnerEnvironment));
         waveTimer = new Timer(10, 3);
-        shapeRenderer = new ShapeRenderer();
 
-        background = new GameObject("","", new Texture("space_background.jpg"));
-        background.setSize(screenWidth, screenHeight);
-
-        this.batch = batch;
-        this.undisposedTextures = undisposedTextures;
         logger.info("Initialized");
     }
 
     @Override
     public void render(float deltaTime) {
-        batch.setProjectionMatrix(camera.combined);
-        shapeRenderer.setProjectionMatrix(camera.combined);
+        Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        batch.setProjectionMatrix(gameCamera.combined);
+        shapeRenderer.setProjectionMatrix(gameCamera.combined);
 
         waveTimer.tick(deltaTime);
-        if (waveTimer.isElapsed())
-        {
+        if (waveTimer.isElapsed()) {
             if (currentWave != null)
                 currentWave.retract();
             currentWave = waves.get(random.nextInt(waves.size()));
@@ -231,6 +188,15 @@ public class GameScreen implements Screen{
             }
         }
 
+        if (!player.isAlive()) {
+            try {
+                playerIsDeadAction();
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+                logger.error(e.getStackTrace().toString());
+            }
+        }
+
         //Draw
         batch.begin();
         background.getSprite().draw(batch);
@@ -255,8 +221,10 @@ public class GameScreen implements Screen{
         }
         batch.end();
 
-        stage.act(deltaTime);
-        stage.draw();
+        uiStage.act(deltaTime);
+        ((Label)((Table)uiStage.getActors().get(0)).getChild(0)).setText("HP: " + player.getHealth());
+        ((Label)((Table)uiStage.getActors().get(0)).getChild(1)).setText("Balance: " + player.getBalance());
+        uiStage.draw();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         for (Projectile projectile : projectileEnvironment) {
@@ -265,7 +233,7 @@ public class GameScreen implements Screen{
         drawCollider(player.getCollider());
         shapeRenderer.end();
 
-        camera.update();
+        gameCamera.update();
     }
 
     public void drawCollider(Collider collider) {
@@ -283,8 +251,8 @@ public class GameScreen implements Screen{
     //region
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height);
-        camera.position.set(screenWidth / 2, screenHeight / 2, 0);
+        uiViewport.update(width, height, true);
+        gameViewport.update(width, height, true);
     }
 
     @Override
@@ -304,18 +272,82 @@ public class GameScreen implements Screen{
 
     @Override
     public void dispose() {
-        background.dispose();
         shapeRenderer.dispose();
-        skin.dispose();
-        stage.dispose();
+        uiSkin.dispose();
+        uiStage.dispose();
     }
 
     @Override
     public void show() {
-        Button button = new Button(skin);
-        button.setPosition(4, 4);
-        button.setSize(50,50);
-        stage.addActor(button);
+        background = new GameObject("Background","Background", new Texture("space_background.jpg"));
+        background.setSize(screenWidth, screenHeight);
+        undisposedTextures.add(background.getTexture());
+
+        shapeRenderer = new ShapeRenderer();
+
+        uiStage = new Stage(uiViewport, batch);
+        uiSkin = new Skin(Gdx.files.internal("uiskin.json"));
+
+        inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer.addProcessor(uiStage);
+        inputMultiplexer.addProcessor(new InputAdapter() {
+            @Override
+            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+                if (button == Input.Buttons.LEFT) {
+                    Vector3 touchPoint;
+                    Vector2 direction;
+
+                    touchPoint = gameViewport.unproject(new Vector3(screenX, screenY, 0));
+                    direction = player.findDirectionVector(new Vector2(touchPoint.x, touchPoint.y));
+                    player.attack(direction, projectileEnvironment);
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean keyDown(int keycode) {
+                if (keycode == Input.Keys.ESCAPE) {
+                    try {
+                        FileOutputStream fos = new FileOutputStream("serialized/player.json");
+                        ObjectOutputStream oos = new ObjectOutputStream(fos);
+                        oos.writeObject(player);
+                        oos.close();
+                        fos.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Gdx.app.postRunnable(() -> {
+                        Gdx.app.exit();
+                    });
+                    return true;
+                }
+                return false;
+            }
+        });
+        Gdx.input.setInputProcessor(inputMultiplexer);
+
+        Table table = new Table();
+        table.setFillParent(true);
+        table.left().top();
+
+        Label hpLabel = new Label("", uiSkin);
+        hpLabel.setAlignment(Align.left);
+
+        Label balanceLabel = new Label("", uiSkin);
+        balanceLabel.setAlignment(Align.left);
+
+        table.add(hpLabel).align(Align.left);
+        table.row();
+        table.add(balanceLabel).align(Align.left);
+
+        uiStage.setDebugAll(true);
+        uiStage.addActor(table);
+    }
+
+    public void playerIsDeadAction() throws InterruptedException{
+        Thread.sleep(350);
+        game.changeScreen(ScreenType.RESTART);
     }
     //endregion
 }
