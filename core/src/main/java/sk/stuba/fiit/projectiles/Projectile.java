@@ -1,17 +1,14 @@
 package sk.stuba.fiit.projectiles;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
-import sk.stuba.fiit.Collider;
 import sk.stuba.fiit.entities.Entity;
-import sk.stuba.fiit.interfaces.attack.MeleeAttacking;
-import sk.stuba.fiit.strategies.MeleeAttackingStrategy;
+import sk.stuba.fiit.interfaces.attack.MeleeAttackingStrategy;
 
 public abstract class Projectile extends Entity implements Cloneable{
     private Vector2 direction;
     private float speed;
-    private MeleeAttacking attacker;
+    private MeleeAttackingStrategy attacker;
     private int damage;
 
     public Vector2 getDirection() { return direction; }
@@ -28,8 +25,8 @@ public abstract class Projectile extends Entity implements Cloneable{
         this.damage = damage;
     }
 
-    public MeleeAttacking getAttacker() { return attacker; }
-    public void setAttacker(MeleeAttacking attacker) { this.attacker = attacker; }
+    public MeleeAttackingStrategy getAttacker() { return attacker; }
+    public void setAttacker(MeleeAttackingStrategy attacker) { this.attacker = attacker; }
 
     public void move(float deltaTime) {
         translate(new Vector2(getDirection()).scl(speed * deltaTime));
@@ -41,7 +38,7 @@ public abstract class Projectile extends Entity implements Cloneable{
 
     public Projectile(String name, String description, Texture texture, int health, int maxHealth, Vector2 direction, float speed, int damage) {
         super(name, description, texture, health, maxHealth);
-        attacker = new MeleeAttackingStrategy();
+        attacker = new sk.stuba.fiit.strategies.attacking.MeleeAttackingStrategy();
         this.damage = damage;
         this.direction = direction;
         this.speed = speed;

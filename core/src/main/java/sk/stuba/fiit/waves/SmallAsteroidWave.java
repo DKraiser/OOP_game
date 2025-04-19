@@ -31,8 +31,8 @@ public class SmallAsteroidWave implements Wave {
             x = random.nextFloat(-1, 1) * radius;
             y = (float)Math.sqrt(radius * radius - x * x);
 
-            x += GameScreen.screenWidth / 2;
-            y += GameScreen.screenHeight / 2;
+            x += GameScreen.worldWidth / 2;
+            y += GameScreen.worldHeight / 2;
             y *= (float)Math.pow(-1, random.nextInt(0, 3));
 
             spawner.setPosition(x, y);
@@ -47,7 +47,9 @@ public class SmallAsteroidWave implements Wave {
 
     @Override
     public void retract() {
-        spawnerEnvironment.removeAll(summons);
+        for (Spawner spawner : summons) {
+            spawner.setAlive(false);
+        }
         summons.clear();
     }
 

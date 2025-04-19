@@ -1,6 +1,9 @@
 package sk.stuba.fiit.effects;
 
 import sk.stuba.fiit.entities.Entity;
+import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.interfaces.TakingDamageStrategy;
+import sk.stuba.fiit.strategies.takingDamage.ResistanceTakingDamageStrategy;
 
 public class ResistanceEffect extends Effect{
     private final StringBuilder nameBuilder;
@@ -28,11 +31,12 @@ public class ResistanceEffect extends Effect{
 
     @Override
     public void applyEffect() {
-
+        setInitialValue(((Player) getTarget()).getTakingDamage());
+        ((Player) getTarget()).setTakingDamage(new ResistanceTakingDamageStrategy((TakingDamageStrategy) getInitialValue(), getLevel() * 10));
     }
 
     @Override
     public void removeEffect() {
-
+        ((Player) getTarget()).setTakingDamage((TakingDamageStrategy) getInitialValue());
     }
 }

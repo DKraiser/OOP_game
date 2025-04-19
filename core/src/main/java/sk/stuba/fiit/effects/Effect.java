@@ -1,8 +1,11 @@
 package sk.stuba.fiit.effects;
 
 import sk.stuba.fiit.entities.Entity;
+import sk.stuba.fiit.interfaces.Tickable;
 
-public abstract class Effect implements Cloneable{
+import java.io.Serializable;
+
+public abstract class Effect implements Cloneable, Tickable, Serializable {
     private String name;
     private String description;
     private int level;
@@ -12,6 +15,7 @@ public abstract class Effect implements Cloneable{
     private float duration;
 
     private Entity target;
+    private Object initialValue;
 
     public String getName() { return name; }
     public String getDescription() { return description; }
@@ -20,6 +24,7 @@ public abstract class Effect implements Cloneable{
     public float getRemainingTime() { return remainingTime; }
     public float getDuration() { return duration; }
     public Entity getTarget() { return target; }
+    public Object getInitialValue() { return initialValue; }
 
     public void setName(String name) { this.name = name; }
     public void setDescription(String description) { this.description = description; }
@@ -28,8 +33,11 @@ public abstract class Effect implements Cloneable{
     public void setRemainingTime(float remainingTime) { this.remainingTime = remainingTime; }
     public void setDuration(float duration) { this.duration = duration; }
     public void setTarget(Entity target) { this.target = target; }
+    protected void setInitialValue(Object initialValue) { this.initialValue = initialValue; }
 
-    public void tickEffect(float deltaTime) {
+    @Override
+    public void tick(float deltaTime) {
+        if (!isFinite) return;
         remainingTime -= deltaTime;
         if (remainingTime <= 0) {
             removeEffect();

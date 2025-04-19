@@ -1,11 +1,34 @@
 package sk.stuba.fiit;
 
-import sk.stuba.fiit.entities.Spawner;
+import java.io.Serializable;
 
-public class Timer implements Cloneable {
+public class Timer implements Cloneable, Serializable {
     private float current;
     private float period;
     private boolean elapsed;
+
+    public float getCurrent() {
+        return current;
+    }
+
+    public void setCurrent(float current) {
+        this.current = current;
+    }
+
+    public float getPeriod() {
+        return period;
+    }
+    public void setPeriod(float period) {
+        this.period = period;
+    }
+
+    public boolean isElapsed() {
+        return elapsed;
+    }
+
+    public void setElapsed() {
+        elapsed = true;
+    }
 
     public void tick(float deltaTime) {
         current += deltaTime;
@@ -18,10 +41,6 @@ public class Timer implements Cloneable {
         }
     }
 
-    public boolean isElapsed() {
-        return elapsed;
-    }
-
     public Timer(float period) {
         current = 0;
         this.period = period;
@@ -29,8 +48,8 @@ public class Timer implements Cloneable {
     }
 
     public Timer(float period, float current) {
-        this.current = current;
         this.period = period;
+        this.current = current;
         elapsed = false;
     }
 

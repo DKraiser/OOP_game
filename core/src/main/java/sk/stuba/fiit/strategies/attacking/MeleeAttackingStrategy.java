@@ -1,9 +1,8 @@
-package sk.stuba.fiit.strategies;
+package sk.stuba.fiit.strategies.attacking;
 
 import sk.stuba.fiit.interfaces.Damageable;
-import sk.stuba.fiit.interfaces.attack.MeleeAttacking;
 
-public class MeleeAttackingStrategy implements MeleeAttacking {
+public class MeleeAttackingStrategy implements sk.stuba.fiit.interfaces.attack.MeleeAttackingStrategy {
 
     @Override
     public void attack(Damageable target, int damage) {

@@ -2,91 +2,99 @@ package sk.stuba.fiit.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Logger;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import sk.stuba.fiit.EffectUpgrade;
 import sk.stuba.fiit.MyGame;
+import sk.stuba.fiit.effects.ExtraHealthEffect;
+import sk.stuba.fiit.effects.RegenerationEffect;
+import sk.stuba.fiit.effects.ResistanceEffect;
+import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.enums.ScreenType;
+
+import java.util.List;
+import java.util.function.Consumer;
 
 public class ShopScreen implements Screen {
-
     private final MyGame game;
-    private Stage stage;
-    private Skin skin;
-
     private SpriteBatch batch;
     private Sprite background;
+    private Player player;
+    private List<Texture> indisposedTextures;
 
-    // Улучшения
+    private OrthographicCamera uiCamera;
+    private Viewport uiViewport;
+    private Stage uiStage;
+    private Skin uiSkin;
+
+    private Logger logger;
+
     private final EffectUpgrade healthEffectUpgrade;
     private final EffectUpgrade regenEffectUpgrade;
     private final EffectUpgrade resistanceEffectUpgrade;
 
-    public ShopScreen(MyGame game, SpriteBatch batch) {
+    public ShopScreen(MyGame game, Player player, SpriteBatch batch, List<Texture> indisposedTextures) {
         this.game = game;
+        this.player = player;
         this.batch = batch;
-        this.stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(stage);
+        this.indisposedTextures = indisposedTextures;
 
-        this.skin = new Skin(Gdx.files.internal("uiskin.json")); // стандартный skin
-        background = new Sprite(new Texture("space_background.jpg"));
-        background.setSize(stage.getViewport().getScreenWidth(), stage.getViewport().getScreenHeight());
+        logger = new Logger("Shop Screen", Logger.INFO);
 
-        // Настройка улучшений
+        uiCamera = new OrthographicCamera();
+        uiViewport = new FitViewport(800, 600, uiCamera);
+
         healthEffectUpgrade = new EffectUpgrade("Extra Health", new int[]{100, 200, 300, 400, 500});
-        regenEffectUpgrade = new EffectUpgrade("Regeneration", new int[]{150, 250, 350, 450, 600});
+        healthEffectUpgrade.setUpgrade(() -> {
+            player.takeEffect(new ExtraHealthEffect(healthEffectUpgrade.getLevel(), false, 1, 1, player));
+            logger.info("Health Upgrade was purchased");
+        });
+        regenEffectUpgrade = new EffectUpgrade("Regeneration", new int[]{100, 250, 350, 450, 600});
+        regenEffectUpgrade.setUpgrade(() -> {
+            player.takeEffect(new RegenerationEffect(regenEffectUpgrade.getLevel(), false, 1, 1, player));
+            logger.info("Regeneration Upgrade was purchased");
+        });
+
         resistanceEffectUpgrade = new EffectUpgrade("Resistance", new int[]{120, 220, 320, 420, 520});
-
-        setupUI();
+        resistanceEffectUpgrade.setUpgrade(() -> {
+            player.takeEffect(new ResistanceEffect(resistanceEffectUpgrade.getLevel(), false, 1, 1, player));
+            logger.info("Resistance Upgrade was purchased");
+        });
     }
 
-    // Sets up the visual part of the shop: labels and buttons
-    private void setupUI() {
-        VerticalGroup verticalGroup = new VerticalGroup();
-        Table table = new Table();
-        verticalGroup.setFillParent(true);
-        verticalGroup.center();
-        verticalGroup.space(15);
-        stage.addActor(verticalGroup);
-
-        Label titleLabel = new Label("Effect Upgrade Shop", skin);
-        verticalGroup.addActor(titleLabel);
-        table.row();
-        table.center();
-        verticalGroup.addActor(table);
-
-        addEffectUpgradeRow(table, healthEffectUpgrade);
-        addEffectUpgradeRow(table, regenEffectUpgrade);
-        addEffectUpgradeRow(table, resistanceEffectUpgrade);
-    }
-
-    // Adds one row per effectUpgrade: label, level indicator, and button
     private void addEffectUpgradeRow(Table table, EffectUpgrade effectUpgrade) {
-        Label nameLabel = new Label(effectUpgrade.name, skin);
-        Label levelLabel = new Label("Level: " + effectUpgrade.level, skin);
-        TextButton buyButton = new TextButton("Buy (" + effectUpgrade.getCurrentCost() + ")", skin);
+        Label nameLabel = new Label(effectUpgrade.getName(), uiSkin);
+        Label levelLabel = new Label("Level: " + effectUpgrade.getLevel(), uiSkin);
+        TextButton buyButton = new TextButton("Buy (" + effectUpgrade.getCurrentCost() + ")", uiSkin);
 
         buyButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (effectUpgrade.level < 5) {
-                    // NOTE: Here you'd check if the player has enough money
-                    effectUpgrade.level++;
-                    levelLabel.setText("Level: " + effectUpgrade.level);
+                if (effectUpgrade.getLevel() < 5) {
+                    if (player.getBalance() < effectUpgrade.getCurrentCost()) return;
 
-                    if (effectUpgrade.level < 5) {
+                    player.setBalance(player.getBalance() - effectUpgrade.getCurrentCost());
+                    effectUpgrade.setLevel(effectUpgrade.getLevel() + 1);
+                    levelLabel.setText("Level: " + effectUpgrade.getLevel());
+
+                    if (effectUpgrade.getLevel() < 5) {
                         buyButton.setText("Buy (" + effectUpgrade.getCurrentCost() + ")");
                     } else {
                         buyButton.setText("Max Level");
-                        buyButton.setDisabled(true); // Disable the button if maxed
+                        buyButton.setDisabled(true);
                     }
+                    effectUpgrade.getUpgrade().run();
                 }
             }
         });
@@ -97,22 +105,62 @@ public class ShopScreen implements Screen {
     }
 
     @Override
-    public void show() { }
+    public void show() {
+        background = new Sprite(new Texture("space_background.jpg"));
+        background.setSize(uiViewport.getWorldWidth(), uiViewport.getWorldHeight());
+
+        uiStage = new Stage(uiViewport);
+        uiSkin = new Skin(Gdx.files.internal("uiskin.json"));
+        Gdx.input.setInputProcessor(uiStage);
+
+        VerticalGroup verticalGroup = new VerticalGroup();
+        Table table = new Table();
+        verticalGroup.setFillParent(true);
+        verticalGroup.center();
+        verticalGroup.space(15);
+
+        Label titleLabel = new Label("Effect Upgrade Shop", uiSkin);
+        verticalGroup.addActor(titleLabel);
+        table.row();
+        table.center();
+        verticalGroup.addActor(table);
+
+        addEffectUpgradeRow(table, healthEffectUpgrade);
+        addEffectUpgradeRow(table, regenEffectUpgrade);
+        addEffectUpgradeRow(table, resistanceEffectUpgrade);
+
+        Button exitButton = new Button(uiSkin);
+        exitButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.changeScreen(ScreenType.GAME);
+            }
+        });
+        exitButton.add(new Image(new Texture("exit.png")));
+        indisposedTextures.add(((TextureRegionDrawable)(((Image)(exitButton.getChild(0))).getDrawable())).getRegion().getTexture());
+
+        exitButton.setSize(48, 48);
+        exitButton.setPosition(uiViewport.getWorldWidth() - exitButton.getWidth() - 10, uiViewport.getWorldHeight() - exitButton.getHeight() - 10);
+
+        uiStage.addActor(verticalGroup);
+        uiStage.addActor(exitButton);
+    }
 
     @Override
-    public void render(float delta) {
-        batch.setProjectionMatrix(stage.getCamera().combined);
+    public void render(float deltaTime) {
+        batch.setProjectionMatrix(uiCamera.combined);
         batch.begin();
         background.draw(batch);
         batch.end();
-        stage.act(delta);
-        stage.draw();
+        uiStage.act(deltaTime);
+        uiStage.draw();
     }
+
     //region
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
-        background.setSize(stage.getViewport().getScreenWidth(), stage.getViewport().getScreenHeight());
+        uiViewport.update(width, height, true);
+        background.setSize(uiViewport.getWorldWidth(), uiViewport.getWorldHeight());
     }
 
     @Override
@@ -126,25 +174,10 @@ public class ShopScreen implements Screen {
 
     @Override
     public void dispose() {
-        stage.dispose();
-        skin.dispose();
+        if (uiStage != null) {
+            uiStage.dispose();
+            uiSkin.dispose();
+        }
     }
     //endregion
-
-    // Вложенный класс для улучшений
-    public static class EffectUpgrade {
-        public String name;
-        public int[] costs;
-        public int level;
-
-        public EffectUpgrade(String name, int[] costs) {
-            this.name = name;
-            this.costs = costs;
-            this.level = 0;
-        }
-
-        public int getCurrentCost() {
-            return level < costs.length ? costs[level] : 0;
-        }
-    }
 }

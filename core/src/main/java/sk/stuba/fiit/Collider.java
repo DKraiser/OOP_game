@@ -4,7 +4,9 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
-public class Collider implements Cloneable{
+import java.io.Serializable;
+
+public class Collider implements Cloneable, Serializable {
     private Circle circleCollider;
     private Rectangle rectCollider;
 
@@ -102,4 +104,6 @@ public class Collider implements Cloneable{
             circleCollider.setPosition(position);
         }
     }
+
+
 }

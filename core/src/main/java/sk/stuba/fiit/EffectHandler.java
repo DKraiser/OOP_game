@@ -3,20 +3,26 @@ package sk.stuba.fiit;
 import sk.stuba.fiit.effects.Effect;
 import sk.stuba.fiit.interfaces.Effectable;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class EffectHandler implements Effectable, Cloneable {
+public class EffectHandler implements Effectable, Cloneable, Serializable {
     private List<Effect> effects;
 
     public List<Effect> getEffects() { return effects; }
-    public Effect getEffect(Class effectClass) {
+    public Effect getEffect(Class<? extends Effect> effectClass) {
         return effects.stream().filter(e -> e.getClass() == effectClass).findFirst().orElse(null);
     }
 
     @Override
     public void takeEffect(Effect effect) {
+        Effect existing = getEffect(effect.getClass());
+        if (existing != null) {
+            existing.removeEffect();
+            effects.remove(existing);
+        }
         effects.add(effect);
         effect.applyEffect();
     }
@@ -27,11 +33,11 @@ public class EffectHandler implements Effectable, Cloneable {
         }
     }
 
-
     @Override
     public void updateEffects(float deltaTime) {
-        for (Effect effect : getEffects())
-            effect.tickEffect(deltaTime);
+        for (Effect effect : getEffects()) {
+            effect.tick(deltaTime);
+        }
     }
 
     @Override

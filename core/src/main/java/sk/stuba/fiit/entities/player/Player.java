@@ -8,32 +8,33 @@ import sk.stuba.fiit.Collider;
 import sk.stuba.fiit.Weapon;
 import sk.stuba.fiit.effects.Effect;
 import sk.stuba.fiit.effects.ParalyseEffect;
+import sk.stuba.fiit.effects.ResistanceEffect;
+import sk.stuba.fiit.events.PlayerIsParalysedEvent;
 import sk.stuba.fiit.factories.weaponfactories.BasicPlayerWeaponFactory;
 import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
-import sk.stuba.fiit.interfaces.Effectable;
-import sk.stuba.fiit.interfaces.Tickable;
+import sk.stuba.fiit.interfaces.*;
 import sk.stuba.fiit.projectiles.EnemyProjectile;
-import sk.stuba.fiit.strategies.DirectionRangedAttackingStrategy;
+import sk.stuba.fiit.strategies.attacking.DirectionRangedAttackingStrategy;
 import sk.stuba.fiit.EffectHandler;
 import sk.stuba.fiit.entities.Entity;
-import sk.stuba.fiit.interfaces.attack.RangedAttacking;
-import sk.stuba.fiit.interfaces.Damageable;
+import sk.stuba.fiit.interfaces.attack.RangedAttackingStrategy;
 import sk.stuba.fiit.projectiles.Projectile;
 import sk.stuba.fiit.Timer;
+import sk.stuba.fiit.strategies.takingDamage.StandartTakingDamageStrategy;
 
 import java.io.Serializable;
-import java.util.Dictionary;
 import java.util.List;
 import java.util.Random;
 
 import static java.lang.Math.max;
 
-public class Player extends Entity implements Damageable, Tickable, Effectable , Serializable, Cloneable{
+public class Player extends Entity implements Damageable, Mortal, Tickable, Effectable , Serializable, Cloneable{
     private int balance;
     private Weapon weapon;
 
     private EffectHandler effectHandler;
-    private RangedAttacking rangedAttacking;
+    private RangedAttackingStrategy rangedAttacking;
+    private TakingDamageStrategy takingDamage;
     private Timer healingTimer;
     private int healingPerInterval;
     private transient Logger logger;
@@ -68,11 +69,20 @@ public class Player extends Entity implements Damageable, Tickable, Effectable ,
         this.healingTimer = timer;
     }
 
-    public RangedAttacking getAttackStrategy() {
+    public RangedAttackingStrategy getAttackStrategy() {
         return rangedAttacking;
     }
-    public void setRangedAttacking(RangedAttacking rangedAttacking) {
+
+    public void setRangedAttacking(RangedAttackingStrategy rangedAttacking) {
         this.rangedAttacking = rangedAttacking;
+    }
+
+    public TakingDamageStrategy getTakingDamage() {
+        return takingDamage;
+    }
+
+    public void setTakingDamage(TakingDamageStrategy takingDamage) {
+        this.takingDamage = takingDamage;
     }
 
     @Override
@@ -97,7 +107,7 @@ public class Player extends Entity implements Damageable, Tickable, Effectable ,
 
     @Override
     public void takeDamage(int damage) {
-        setHealth(max(getHealth() - damage, 0));
+        takingDamage.takeDamage(damage, this);
         logger.info("Get " + damage + " damage\n" + getHealth() + " health points left");
         if (getHealth() == 0) {
             die();
@@ -115,16 +125,17 @@ public class Player extends Entity implements Damageable, Tickable, Effectable ,
     }
 
     public void heal() {
-        if (healingTimer.isElapsed()) {
-            setHealth(getHealth() + healingPerInterval);
-            logger.info("Current health: " + getHealth());
-        }
+        setHealth(getHealth() + healingPerInterval);
+        logger.info("Current health: " + getHealth());
     }
 
     @Override
     public void tick(float deltaTime) {
         healingTimer.tick(deltaTime);
-        heal();
+        if (healingTimer.isElapsed()) {
+            heal();
+        }
+        logger.debug("Current regeneration period: " + healingTimer.getPeriod());
         updateEffects(deltaTime);
     }
 
@@ -134,6 +145,7 @@ public class Player extends Entity implements Damageable, Tickable, Effectable ,
             Random random = new Random();
             random.setSeed(System.currentTimeMillis());
             if (random.nextFloat(0f, 1f) > 0.9f) {
+                PlayerIsParalysedEvent.invokeEvent();
                 takeEffect(new ParalyseEffect(true, 1.5f, this));
                 logger.info("Paralyse");
             }
@@ -167,8 +179,9 @@ public class Player extends Entity implements Damageable, Tickable, Effectable ,
         this.healingPerInterval = healingPerInterval;
 
         rangedAttacking = new DirectionRangedAttackingStrategy();
+        takingDamage = new StandartTakingDamageStrategy();
 
-        logger = new Logger("Player", Logger.INFO);
+        logger = new Logger("Player", Logger.DEBUG);
     }
 
     @Override

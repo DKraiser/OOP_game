@@ -5,10 +5,10 @@ import sk.stuba.fiit.Weapon;
 import sk.stuba.fiit.entities.Entity;
 import sk.stuba.fiit.entities.player.Player;
 import sk.stuba.fiit.interfaces.Damageable;
-import sk.stuba.fiit.interfaces.attack.RangedAttacking;
+import sk.stuba.fiit.interfaces.attack.RangedAttackingStrategy;
 import sk.stuba.fiit.projectiles.Projectile;
-import sk.stuba.fiit.strategies.DirectionRangedAttackingStrategy;
-import sk.stuba.fiit.strategies.TargetRangedAttackingStrategy;
+import sk.stuba.fiit.strategies.attacking.DirectionRangedAttackingStrategy;
+import sk.stuba.fiit.strategies.attacking.TargetRangedAttackingStrategy;
 
 import java.util.Collection;
 
@@ -43,7 +43,7 @@ public class ParalyseEffect extends Effect{
 
     @Override
     public void applyEffect() {
-        RangedAttacking noAttackStrategy = new TargetRangedAttackingStrategy() {
+        RangedAttackingStrategy noAttackStrategy = new TargetRangedAttackingStrategy() {
             @Override
             public void attack(Vector2 direction, Collection<Projectile> projectileEnvironment, Weapon weapon) { }
 

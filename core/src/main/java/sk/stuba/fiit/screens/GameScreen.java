@@ -11,8 +11,11 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.*;
@@ -23,10 +26,12 @@ import sk.stuba.fiit.entities.Spawner;
 import sk.stuba.fiit.entities.player.Player;
 import sk.stuba.fiit.enums.ScreenType;
 import sk.stuba.fiit.events.EnemyKilledEvent;
+import sk.stuba.fiit.events.PlayerIsParalysedEvent;
 import sk.stuba.fiit.interfaces.Wave;
 import sk.stuba.fiit.projectiles.Projectile;
 import sk.stuba.fiit.waves.BigAsteroidWave;
 import sk.stuba.fiit.waves.SmallAsteroidWave;
+import sk.stuba.fiit.waves.UfoWave;
 
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
@@ -35,12 +40,15 @@ import java.util.List;
 import java.util.Random;
 
 public class GameScreen implements Screen{
-    public static final float screenWidth = 8;
-    public static final float screenHeight = 6;
+    public static final float worldWidth = 8;
+    public static final float worldHeight = 6;
+
+    public static final float screenWidth = 800;
+    public static final float screenHeight = 600;
 
     private final MyGame game;
     private SpriteBatch batch;
-    private List<Texture> undisposedTextures;
+    private List<Texture> indisposedTextures;
     private InputMultiplexer inputMultiplexer;
     private Logger logger;
     private Random random;
@@ -65,27 +73,27 @@ public class GameScreen implements Screen{
     private List<Spawner> tempSpawnerEnvironment;
     private ShapeRenderer shapeRenderer;
 
-    public GameScreen(MyGame game, Player player, SpriteBatch batch, List<Texture> undisposedTextures) {
+    public GameScreen(MyGame game, Player player, SpriteBatch batch, List<Texture> indisposedTextures) {
         this.game = game;
+        PlayerIsParalysedEvent.setScreen(this);
 
         this.player = player;
         EnemyKilledEvent.setPlayer(player);
-        player.updatePosition(new Vector2(screenWidth / 2, screenHeight / 2));
+        player.updatePosition(new Vector2(worldWidth / 2, worldHeight / 2));
 
         this.batch = batch;
-        this.undisposedTextures = undisposedTextures;
+        this.indisposedTextures = indisposedTextures;
 
         random = new Random();
         random.setSeed(System.currentTimeMillis());
 
-        Gdx.app.setLogLevel(Application.LOG_DEBUG);
         logger = new Logger("GameScreen", Application.LOG_DEBUG);
 
         gameCamera = new OrthographicCamera();
-        gameViewport = new FitViewport(screenWidth, screenHeight, gameCamera);
+        gameViewport = new FitViewport(worldWidth, worldHeight, gameCamera);
 
         uiCamera = new OrthographicCamera();
-        uiViewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), uiCamera);
+        uiViewport = new FitViewport(screenWidth, screenHeight, uiCamera);
 
         projectileEnvironment = new ArrayList<Projectile>();
         tempProjectileEnvironment = new ArrayList<Projectile>();
@@ -93,9 +101,10 @@ public class GameScreen implements Screen{
         tempSpawnerEnvironment = new ArrayList<Spawner>();
 
         waves = new ArrayList<>();
-        waves.add(new SmallAsteroidWave(5, screenWidth / 2, spawnerEnvironment));
-        waves.add(new BigAsteroidWave(5, screenWidth / 2, spawnerEnvironment));
-        waveTimer = new Timer(10, 3);
+        //waves.add(new SmallAsteroidWave(5, worldWidth / 2, spawnerEnvironment));
+        //waves.add(new BigAsteroidWave(5, worldWidth / 2, spawnerEnvironment));
+        waves.add(new UfoWave(3, 0.85f * (worldHeight / 2), spawnerEnvironment));
+        waveTimer = new Timer(10, 8);
 
         logger.info("Initialized");
     }
@@ -126,7 +135,7 @@ public class GameScreen implements Screen{
             for (Projectile projectile : projectileEnvironment) {
                 projectile.move(deltaTime);
 
-                if (Math.abs(projectile.getPosition().x - screenWidth / 2) > screenWidth / 2 * 1.5f) {
+                if (Math.abs(projectile.getPosition().x - worldWidth / 2) > worldHeight / 2 * 1.5f) {
                     projectile.setAlive(false);
                 }
             }
@@ -190,7 +199,7 @@ public class GameScreen implements Screen{
 
         if (!player.isAlive()) {
             try {
-                playerIsDeadAction();
+                onPlayerIsDead();
             } catch (Exception e) {
                 logger.error(e.getMessage());
                 logger.error(e.getStackTrace().toString());
@@ -204,8 +213,8 @@ public class GameScreen implements Screen{
         if (!projectileEnvironment.isEmpty()) {
             for (Projectile projectile : projectileEnvironment) {
                 projectile.getSprite().draw(batch);
-                if (!undisposedTextures.contains(projectile.getTexture())) {
-                    undisposedTextures.add(projectile.getTexture());
+                if (!indisposedTextures.contains(projectile.getTexture())) {
+                    indisposedTextures.add(projectile.getTexture());
                 }
             }
         }
@@ -213,8 +222,8 @@ public class GameScreen implements Screen{
             for (Spawner spawner : spawnerEnvironment) {
                 if (spawner.getSprite() != null) {
                     spawner.getSprite().draw(batch);
-                    if (!undisposedTextures.contains(spawner.getTexture())) {
-                        undisposedTextures.add(spawner.getTexture());
+                    if (!indisposedTextures.contains(spawner.getTexture())) {
+                        indisposedTextures.add(spawner.getTexture());
                     }
                 }
             }
@@ -222,30 +231,11 @@ public class GameScreen implements Screen{
         batch.end();
 
         uiStage.act(deltaTime);
-        ((Label)((Table)uiStage.getActors().get(0)).getChild(0)).setText("HP: " + player.getHealth());
+        ((Label)((Table)uiStage.getActors().get(0)).getChild(0)).setText("HP: " + player.getHealth() + "/" + player.getMaxHealth());
         ((Label)((Table)uiStage.getActors().get(0)).getChild(1)).setText("Balance: " + player.getBalance());
         uiStage.draw();
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        for (Projectile projectile : projectileEnvironment) {
-            drawCollider(projectile.getCollider());
-        }
-        drawCollider(player.getCollider());
-        shapeRenderer.end();
-
         gameCamera.update();
-    }
-
-    public void drawCollider(Collider collider) {
-        if (collider.getCircleCollider() != null) {
-            Circle circle = collider.getCircleCollider();
-            shapeRenderer.setColor(Color.PINK);
-            shapeRenderer.circle(circle.x, circle.y, circle.radius);
-        } else if (collider.getRectCollider() != null) {
-            Rectangle rect = collider.getRectCollider();
-            shapeRenderer.setColor(Color.RED);
-            shapeRenderer.rect(rect.x, rect.y, rect.width, rect.height);
-        }
     }
 
     //region
@@ -280,8 +270,8 @@ public class GameScreen implements Screen{
     @Override
     public void show() {
         background = new GameObject("Background","Background", new Texture("space_background.jpg"));
-        background.setSize(screenWidth, screenHeight);
-        undisposedTextures.add(background.getTexture());
+        background.setSize(gameViewport.getWorldWidth(), gameViewport.getWorldHeight());
+        indisposedTextures.add(background.getTexture());
 
         shapeRenderer = new ShapeRenderer();
 
@@ -341,13 +331,42 @@ public class GameScreen implements Screen{
         table.row();
         table.add(balanceLabel).align(Align.left);
 
-        uiStage.setDebugAll(true);
+        Button shopButton = new Button(uiSkin);
+        shopButton.add(new Image(new Texture("shop.png")));
+        indisposedTextures.add(((TextureRegionDrawable)(((Image)(shopButton.getChild(0))).getDrawable())).getRegion().getTexture());
+
+        shopButton.setSize(48, 48);
+        shopButton.setPosition(screenWidth - shopButton.getWidth() - 10, screenHeight - shopButton.getHeight() - 10);
+        shopButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                game.changeScreen(ScreenType.SHOP);
+            }
+        });
+
         uiStage.addActor(table);
+        uiStage.addActor(shopButton);
     }
 
-    public void playerIsDeadAction() throws InterruptedException{
-        Thread.sleep(350);
+    public void onPlayerIsDead() throws InterruptedException{
+        Thread.sleep(650);
         game.changeScreen(ScreenType.RESTART);
+    }
+
+    public void onPlayerIsParalysed() {
+        Thread notifyingAboutParalyseThread = new Thread(() -> {
+            Label paralyseLabel = new Label("Paralyse", uiSkin);
+            paralyseLabel.setAlignment(Align.center);
+            paralyseLabel.setFontScale(2);
+            paralyseLabel.setPosition(uiViewport.getWorldWidth() / 2 - paralyseLabel.getWidth() / 2, uiViewport.getWorldHeight() / 2 - paralyseLabel.getHeight() / 2 - 100);
+            uiStage.addActor(paralyseLabel);
+
+            try { Thread.sleep(1500); }
+            catch (InterruptedException e) { logger.error(e.getMessage()); }
+
+            uiStage.getActors().removeValue(paralyseLabel, true);
+        });
+        notifyingAboutParalyseThread.start();
     }
     //endregion
 }

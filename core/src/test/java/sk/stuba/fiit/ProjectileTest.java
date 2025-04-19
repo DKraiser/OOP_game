@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import sk.stuba.fiit.interfaces.attack.MeleeAttacking;
+import sk.stuba.fiit.interfaces.attack.MeleeAttackingStrategy;
 import sk.stuba.fiit.projectiles.Projectile;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -92,7 +92,7 @@ public class ProjectileTest {
 
     @Test
     public void testSetAndGetAttacker() {
-        MeleeAttacking mockAttacker = Mockito.mock(MeleeAttacking.class);
+        MeleeAttackingStrategy mockAttacker = Mockito.mock(MeleeAttackingStrategy.class);
         projectile.setAttacker(mockAttacker);
         assertEquals(mockAttacker, projectile.getAttacker());
     }

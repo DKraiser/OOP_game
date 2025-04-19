@@ -1,5 +1,6 @@
 package sk.stuba.fiit;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -21,7 +22,7 @@ import java.util.List;
 public class MyGame extends Game {
     public static final boolean TESTMODE = false;
     private static Player defaultplayer;
-    private static List<Texture> undisposedTextures;
+    private static List<Texture> indisposedTextures;
     private SpriteBatch batch;
     private Player player;
 
@@ -29,9 +30,23 @@ public class MyGame extends Game {
     private RestartScreen restartScreen;
     private ShopScreen shopScreen;
 
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
+
+    public void reloadPlayer() {
+        player = defaultplayer.clone();
+    }
+
     @Override
     public void create() {
-        undisposedTextures = new ArrayList<Texture>();
+        Gdx.app.setLogLevel(Application.LOG_INFO);
+
+        indisposedTextures = new ArrayList<Texture>();
         defaultplayer = new Player("P", "Player", new Texture("earth.png"), 1, null, 5, 5, 1, new Timer(10), 0, new BasicPlayerWeaponFactory());
         batch = new SpriteBatch();
         try {
@@ -40,12 +55,12 @@ public class MyGame extends Game {
         } catch (Exception e) {
             System.out.println("Couldn't deserialize player");
             e.printStackTrace();
-            player = defaultplayer.clone();
+            reloadPlayer();
         }
 
-        gameScreen = new GameScreen(this, player, batch, undisposedTextures);
-        shopScreen = new ShopScreen(this, batch);
-        restartScreen = new RestartScreen(this, batch);
+        gameScreen = new GameScreen(this, player, batch, indisposedTextures);
+        shopScreen = new ShopScreen(this, player, batch, indisposedTextures);
+        restartScreen = new RestartScreen(this, batch, indisposedTextures);
         setScreen(gameScreen);
     }
 
@@ -56,7 +71,7 @@ public class MyGame extends Game {
 
     @Override
     public void dispose() {
-        for (Texture texture : undisposedTextures) {
+        for (Texture texture : indisposedTextures) {
             texture.dispose();
         }
         player.dispose();
@@ -84,16 +99,15 @@ public class MyGame extends Game {
         switch (screenType) {
             case GAME:
                 gameScreen.dispose();
-                player = defaultplayer.clone();
-                gameScreen = new GameScreen(this, player, batch, undisposedTextures);
+                gameScreen = new GameScreen(this, player, batch, indisposedTextures);
                 break;
             case SHOP:
                 shopScreen.dispose();
-                shopScreen = new ShopScreen(this, batch);
+                shopScreen = new ShopScreen(this, player, batch, indisposedTextures);
                 break;
             case RESTART:
                 restartScreen.dispose();
-                restartScreen = new RestartScreen(this, batch);
+                restartScreen = new RestartScreen(this, batch, indisposedTextures);
                 break;
         }
     }

@@ -7,9 +7,10 @@ import sk.stuba.fiit.effects.Effect;
 import sk.stuba.fiit.entities.Entity;
 import sk.stuba.fiit.entities.Spawner;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class PlayerProjectile extends Projectile implements Cloneable{
+public class PlayerProjectile extends Projectile implements Cloneable, Serializable {
     @Override
     public Projectile clone() {
         Projectile clone = new PlayerProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), null, this.getSpeed(), this.getDamage());

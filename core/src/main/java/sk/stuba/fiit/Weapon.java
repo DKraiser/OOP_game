@@ -5,9 +5,10 @@ import com.badlogic.gdx.math.Vector2;
 import sk.stuba.fiit.factories.projectilefactories.ProjectileFactory;
 import sk.stuba.fiit.projectiles.Projectile;
 
+import java.io.Serializable;
 import java.util.Collection;
 
-public class Weapon extends GameObject implements Cloneable {
+public class Weapon extends GameObject implements Cloneable, Serializable {
     private final ProjectileFactory projectileFactory;
 
     public void update(Vector2 position, float radius)

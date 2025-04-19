@@ -1,20 +1,22 @@
 package sk.stuba.fiit.entities;
 
 import com.badlogic.gdx.graphics.Texture;
-import sk.stuba.fiit.EffectHandler;
 import sk.stuba.fiit.MyGame;
 import sk.stuba.fiit.Timer;
 import sk.stuba.fiit.Weapon;
 import sk.stuba.fiit.events.EnemyKilledEvent;
+import sk.stuba.fiit.interfaces.Damageable;
+import sk.stuba.fiit.interfaces.Mortal;
 import sk.stuba.fiit.interfaces.Tickable;
-import sk.stuba.fiit.interfaces.attack.RangedAttacking;
+import sk.stuba.fiit.interfaces.attack.RangedAttackingStrategy;
+import sk.stuba.fiit.projectiles.PlayerProjectile;
 import sk.stuba.fiit.projectiles.Projectile;
-import sk.stuba.fiit.strategies.TargetRangedAttackingStrategy;
+import sk.stuba.fiit.strategies.attacking.TargetRangedAttackingStrategy;
 
 import java.util.Collection;
 
-public class Spawner extends Entity implements Cloneable, Tickable {
-    private RangedAttacking rangedAttacking;
+public class Spawner extends Entity implements Cloneable, Tickable, Damageable, Mortal {
+    private RangedAttackingStrategy rangedAttacking;
     private Weapon weapon;
     private int price;
     private Timer spawnTimer;
@@ -73,6 +75,13 @@ public class Spawner extends Entity implements Cloneable, Tickable {
             clone.setSize(getWidth(), getHeight());
         }
         return clone;
+    }
+
+    @Override
+    public void onCollision(Entity collisionEntity) {
+        if (collisionEntity instanceof PlayerProjectile) {
+            takeDamage(((PlayerProjectile) collisionEntity).getDamage());
+        }
     }
 
     @Override

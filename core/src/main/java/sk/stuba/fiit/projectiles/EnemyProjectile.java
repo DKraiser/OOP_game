@@ -9,11 +9,12 @@ import sk.stuba.fiit.entities.Entity;
 import sk.stuba.fiit.entities.player.Player;
 import sk.stuba.fiit.events.EnemyKilledEvent;
 import sk.stuba.fiit.interfaces.Damageable;
+import sk.stuba.fiit.interfaces.Mortal;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EnemyProjectile extends Projectile implements Damageable {
+public class EnemyProjectile extends Projectile implements Damageable, Mortal {
     private EffectHandler effectHandler;
     private int price;
 

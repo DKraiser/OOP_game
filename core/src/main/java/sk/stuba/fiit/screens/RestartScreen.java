@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -21,20 +22,26 @@ import org.lwjgl.opengl.GL20;
 import sk.stuba.fiit.MyGame;
 import sk.stuba.fiit.enums.ScreenType;
 
+import java.util.List;
+
 
 public class RestartScreen implements Screen {
     private MyGame game;
     private SpriteBatch batch;
     private Sprite background;
+    private List<Texture> indisposedTextures;
+
     private Camera uiCamera;
     private Viewport uiViewport;
     private Stage uiStage;
     private Skin uiSkin;
     private InputMultiplexer uiInputMultiplexer;
 
-    public RestartScreen(MyGame game, SpriteBatch batch) {
+    public RestartScreen(MyGame game, SpriteBatch batch, List<Texture> indisposedTextures) {
         this.game = game;
         this.batch = batch;
+        this.indisposedTextures = indisposedTextures;
+
         uiCamera = new OrthographicCamera();
         uiViewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), uiCamera);
     }
@@ -43,6 +50,9 @@ public class RestartScreen implements Screen {
     public void show() {
         background = new Sprite(new Texture("space_background.jpg"));
         background.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        if (!indisposedTextures.contains(background.getTexture())) {
+            indisposedTextures.add(background.getTexture());
+        }
 
         batch.setProjectionMatrix(uiCamera.combined);
         uiStage = new Stage(uiViewport, batch);
@@ -52,22 +62,29 @@ public class RestartScreen implements Screen {
 
         Table table = new Table();
         table.setFillParent(true);
+        table.setBackground(new SpriteDrawable(background));
         table.align(Align.center);
+
         Label loseLabel = new Label("You lose!", uiSkin);
         loseLabel.setFontScale(3);
         Label restartLabel = new Label("Do you want to restart?", uiSkin);
         restartLabel.setFontScale(3);
+
         Button restartButton = new TextButton("Restart", uiSkin);
         restartButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                game.reloadPlayer();
                 game.reloadScreen(ScreenType.GAME);
+                game.reloadScreen(ScreenType.SHOP);
                 game.changeScreen(ScreenType.GAME);
             }
         });
+
         table.add(loseLabel).row();
         table.add(restartLabel).row();
         table.add(restartButton).row();
+
         uiStage.addActor(table);
     }
 
@@ -85,8 +102,9 @@ public class RestartScreen implements Screen {
     }
 
     @Override
-    public void resize(int i, int i1) {
-
+    public void resize(int width, int height) {
+        uiViewport.update(width, height, true);
+        background.setSize(width, height);
     }
 
     @Override

@@ -5,8 +5,9 @@ import sk.stuba.fiit.Collider;
 import sk.stuba.fiit.GameObject;
 import sk.stuba.fiit.exceptions.InvalidParameterInitializationException;
 import sk.stuba.fiit.interfaces.Damageable;
+import sk.stuba.fiit.interfaces.Mortal;
 
-public abstract class Entity extends GameObject implements Damageable {
+public abstract class Entity extends GameObject implements Damageable, Mortal {
     private int health;
     private int maxHealth;
     private boolean isAlive;
@@ -57,5 +58,9 @@ public abstract class Entity extends GameObject implements Damageable {
         if (health > maxHealth || health < 0 || maxHealth < 0 ) {
             throw new InvalidParameterInitializationException();
         }
+    }
+
+    public Entity() {
+        super();
     }
 }

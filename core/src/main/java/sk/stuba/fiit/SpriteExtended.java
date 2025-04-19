@@ -3,8 +3,11 @@ package sk.stuba.fiit;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
+import sk.stuba.fiit.interfaces.Effectable;
 
-public class SpriteExtended extends Sprite {
+import java.io.Serializable;
+
+public class SpriteExtended extends Sprite implements Serializable {
     private Vector2 position;
 
     public Vector2 getPosition() { return position; }

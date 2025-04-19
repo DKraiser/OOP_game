@@ -95,19 +95,6 @@ public class EnemyProjectileTest {
     }
 
     @Test
-    public void testTakeEffect() {
-        Effect effect = new ParalyseEffect(true, 1, 1, enemyProjectile);
-        enemyProjectile.takeEffect(effect);
-        assertDoesNotThrow(() -> enemyProjectile.takeEffect(effect));
-    }
-
-    @Test
-    public void testUpdateEffects() {
-        float deltaTime = 1.0f;
-        assertDoesNotThrow(() -> enemyProjectile.updateEffects(deltaTime));
-    }
-
-    @Test
     public void testGetPrice() {
         assertEquals(1, enemyProjectile.getPrice());
     }
