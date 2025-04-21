@@ -20,7 +20,7 @@ public class MissileEnemyWeaponFactory extends WeaponFactory {
     @Override
     public void adjustProjectileTemplate() {
         projectileTemplate = new EnemyProjectile("", "", new Texture("missile.png"), 5, 5, null, 5f, 2, 5);
-        projectileTemplate.setSize(0.8f,0.8f);
+        projectileTemplate.setSize(0.5f,0.5f);
         projectileTemplate.setOrigin(projectileTemplate.getWidth() / 2, projectileTemplate.getHeight() / 2);
 
         projectileTemplate.setCollider(new Collider(new Circle(new Vector2(projectileTemplate.getPosition()), projectileTemplate.getHeight() / 4)));

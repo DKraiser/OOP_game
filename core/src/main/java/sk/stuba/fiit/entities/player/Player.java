@@ -126,7 +126,6 @@ public class Player extends Entity implements Damageable, Mortal, Tickable, Effe
 
     public void heal() {
         setHealth(getHealth() + healingPerInterval);
-        logger.info("Current health: " + getHealth());
     }
 
     @Override
@@ -135,7 +134,6 @@ public class Player extends Entity implements Damageable, Mortal, Tickable, Effe
         if (healingTimer.isElapsed()) {
             heal();
         }
-        logger.debug("Current regeneration period: " + healingTimer.getPeriod());
         updateEffects(deltaTime);
     }
 

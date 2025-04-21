@@ -59,8 +59,8 @@ public class Spawner extends Entity implements Cloneable, Tickable, Damageable, 
 
     @Override
     public void takeDamage(int damage) {
-        setHealth(getHealth() - damage);
-        if (getHealth() <= 0) {
+        setHealth(Math.max(getHealth() - damage, 0));
+        if (getHealth() == 0) {
             die();
         }
     }

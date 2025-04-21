@@ -56,7 +56,9 @@ public class EnemyProjectile extends Projectile implements Damageable, Mortal {
         EnemyProjectile clone = new EnemyProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), null, this.getSpeed(), this.getDamage(), this.getPrice());
         if (!MyGame.TESTMODE)
         {
-            clone.getSprite().set(this.getSprite());
+            if (getSprite() != null) {
+                clone.getSprite().set(this.getSprite());
+            }
         }
         clone.setCollider(this.getCollider().clone());
 

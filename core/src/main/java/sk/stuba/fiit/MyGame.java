@@ -20,7 +20,7 @@ import java.util.List;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class MyGame extends Game {
-    public static final boolean TESTMODE = false;
+    public static final boolean TESTMODE = true;
     private static Player defaultplayer;
     private static List<Texture> indisposedTextures;
     private SpriteBatch batch;
@@ -44,10 +44,10 @@ public class MyGame extends Game {
 
     @Override
     public void create() {
-        Gdx.app.setLogLevel(Application.LOG_INFO);
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
         indisposedTextures = new ArrayList<Texture>();
-        defaultplayer = new Player("P", "Player", new Texture("earth.png"), 1, null, 5, 5, 1, new Timer(10), 0, new BasicPlayerWeaponFactory());
+        defaultplayer = new Player("P", "Player", new Texture("earth.png"), 1, null, 5, 5, 1, new Timer(10), 10000, new BasicPlayerWeaponFactory());
         batch = new SpriteBatch();
         try {
             player = deserializePlayer();

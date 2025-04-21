@@ -2,13 +2,10 @@ package sk.stuba.fiit.screens;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.Camera;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -22,22 +19,22 @@ import com.badlogic.gdx.utils.viewport.*;
 
 import org.lwjgl.opengl.GL20;
 import sk.stuba.fiit.*;
+import sk.stuba.fiit.Timer;
 import sk.stuba.fiit.entities.Spawner;
 import sk.stuba.fiit.entities.player.Player;
 import sk.stuba.fiit.enums.ScreenType;
 import sk.stuba.fiit.events.EnemyKilledEvent;
 import sk.stuba.fiit.events.PlayerIsParalysedEvent;
-import sk.stuba.fiit.interfaces.Wave;
-import sk.stuba.fiit.projectiles.Projectile;
 import sk.stuba.fiit.waves.BigAsteroidWave;
 import sk.stuba.fiit.waves.SmallAsteroidWave;
+import sk.stuba.fiit.waves.Wave;
+import sk.stuba.fiit.projectiles.Projectile;
 import sk.stuba.fiit.waves.UfoWave;
 
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 public class GameScreen implements Screen{
     public static final float worldWidth = 8;
@@ -65,7 +62,7 @@ public class GameScreen implements Screen{
     private Player player;
 
     private Wave currentWave;
-    private List<Wave> waves;
+    private Map<Float, Wave> waves;
     private Timer waveTimer;
     private List<Projectile> projectileEnvironment;
     private List<Projectile> tempProjectileEnvironment;
@@ -100,11 +97,18 @@ public class GameScreen implements Screen{
         spawnerEnvironment = new ArrayList<Spawner>();
         tempSpawnerEnvironment = new ArrayList<Spawner>();
 
-        waves = new ArrayList<>();
-        //waves.add(new SmallAsteroidWave(5, worldWidth / 2, spawnerEnvironment));
-        //waves.add(new BigAsteroidWave(5, worldWidth / 2, spawnerEnvironment));
-        waves.add(new UfoWave(3, 0.85f * (worldHeight / 2), spawnerEnvironment));
-        waveTimer = new Timer(10, 8);
+        waves = new TreeMap<>();
+        waveTimer = new Timer(10);
+        addNewWave(new SmallAsteroidWave(5, worldWidth / 2, spawnerEnvironment));
+        addNewWave(new BigAsteroidWave(5, worldWidth / 2, spawnerEnvironment));
+        addNewWave(new UfoWave(3, worldHeight / 2, spawnerEnvironment));
+        currentWave = selectWave(random.nextFloat(0, 1));
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         logger.info("Initialized");
     }
@@ -116,16 +120,20 @@ public class GameScreen implements Screen{
         batch.setProjectionMatrix(gameCamera.combined);
         shapeRenderer.setProjectionMatrix(gameCamera.combined);
 
+        //Spawn wave
         waveTimer.tick(deltaTime);
-        if (waveTimer.isElapsed()) {
-            if (currentWave != null)
-                currentWave.retract();
-            currentWave = waves.get(random.nextInt(waves.size()));
-            currentWave.summon();
+        if (waveTimer.isElapsed() || spawnerEnvironment.isEmpty()) {
+            new Thread(() -> {
+                if (currentWave != null)
+                    currentWave.retract();
+                currentWave = selectWave(random.nextFloat(0, 1));
+
+                currentWave.summon();
+            }).start();
         }
 
         for (Spawner spawner : spawnerEnvironment) {
-            spawner.tick(deltaTime);
+                spawner.tick(deltaTime);
             spawner.attack(player, projectileEnvironment);
         }
         player.tick(deltaTime);
@@ -367,6 +375,42 @@ public class GameScreen implements Screen{
             uiStage.getActors().removeValue(paralyseLabel, true);
         });
         notifyingAboutParalyseThread.start();
+    }
+
+    private void calculateWaveSelectionFloats() {
+        float sum = 0;
+        int used = 0;
+        Map.Entry<Float, Wave> entry;
+        Map<Float, Wave> recalculatedWaves = new TreeMap<>();
+
+        Iterator<Map.Entry<Float, Wave>> entryIterator = waves.entrySet().iterator();
+        while (entryIterator.hasNext()) {
+            entry = entryIterator.next();
+            sum += entry.getValue().getRarity().ordinal() + 1;
+        }
+
+        entryIterator = waves.entrySet().iterator();
+        while (entryIterator.hasNext() && used < sum) {
+            entry = entryIterator.next();
+            used += entry.getValue().getRarity().ordinal() + 1;
+            recalculatedWaves.put(used / sum, entry.getValue());
+        }
+        waves.clear();
+        waves = recalculatedWaves;
+    }
+
+    private void addNewWave(Wave wave) {
+        waves.put((float) waves.size() * (-1), wave);
+        calculateWaveSelectionFloats();
+    }
+
+    private Wave selectWave(float selector) {
+        for (float s : waves.keySet()) {
+            if (s > selector) {
+                return waves.get(s);
+            }
+        }
+        return null;
     }
     //endregion
 }
