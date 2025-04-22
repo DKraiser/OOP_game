@@ -47,7 +47,7 @@ public abstract class Entity extends GameObject implements Damageable, Mortal {
         this.collider = collider;
     }
 
-    public void onCollision(Entity collisionEntity) { }
+    public abstract void onCollision(Entity collisionEntity);
 
     public Entity(String name, String description, Texture texture, int health, int maxHealth) {
         super(name, description, texture);
@@ -58,9 +58,5 @@ public abstract class Entity extends GameObject implements Damageable, Mortal {
         if (health > maxHealth || health < 0 || maxHealth < 0 ) {
             throw new InvalidParameterInitializationException();
         }
-    }
-
-    public Entity() {
-        super();
     }
 }

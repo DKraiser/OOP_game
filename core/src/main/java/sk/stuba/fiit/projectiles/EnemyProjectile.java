@@ -6,7 +6,7 @@ import sk.stuba.fiit.MyGame;
 import sk.stuba.fiit.effects.Effect;
 import sk.stuba.fiit.EffectHandler;
 import sk.stuba.fiit.entities.Entity;
-import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.entities.Player;
 import sk.stuba.fiit.events.EnemyKilledEvent;
 import sk.stuba.fiit.interfaces.Damageable;
 import sk.stuba.fiit.interfaces.Mortal;
@@ -53,7 +53,14 @@ public class EnemyProjectile extends Projectile implements Damageable, Mortal {
 
     @Override
     public Projectile clone() {
+        List<Effect> thisEffects = getEffectHandler().getEffects();
+        for (Effect effect : thisEffects) {
+            effect.removeEffect();
+        }
+
         EnemyProjectile clone = new EnemyProjectile(this.getName(), this.getDescription(), this.getTexture(), this.getHealth(), this.getMaxHealth(), null, this.getSpeed(), this.getDamage(), this.getPrice());
+
+        getEffectHandler().takeEffect(thisEffects);
         if (!MyGame.TESTMODE)
         {
             if (getSprite() != null) {

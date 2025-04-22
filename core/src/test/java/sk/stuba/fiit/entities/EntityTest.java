@@ -1,10 +1,9 @@
-package sk.stuba.fiit;
+package sk.stuba.fiit.entities;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import sk.stuba.fiit.entities.Entity;
+import sk.stuba.fiit.Collider;
 import sk.stuba.fiit.exceptions.InvalidParameterInitializationException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,11 +15,17 @@ public class EntityTest {
     @BeforeEach
     public void setUp() {
         entity = new Entity("EntityName", "EntityDescription", null, 100, 100) {
+            public boolean collision = false;
             @Override
             public void die() {}
 
             @Override
             public void takeDamage(int damage) {}
+
+            @Override
+            public void onCollision(Entity collisionEntity) {
+                collision = true;
+            }
         };
         entity.setCollider(new Collider(new Circle(1,1,1)));
     }
@@ -40,6 +45,9 @@ public class EntityTest {
 
                 @Override
                 public void takeDamage(int damage) {}
+
+                @Override
+                public void onCollision(Entity collisionEntity) {}
             };
         });
     }
@@ -53,6 +61,9 @@ public class EntityTest {
 
                 @Override
                 public void takeDamage(int damage) {}
+
+                @Override
+                public void onCollision(Entity collisionEntity) {}
             };
         });
     }
@@ -66,6 +77,9 @@ public class EntityTest {
 
                 @Override
                 public void takeDamage(int damage) {}
+
+                @Override
+                public void onCollision(Entity collisionEntity) {}
             };
         });
     }
@@ -77,8 +91,14 @@ public class EntityTest {
     }
 
     @Test
-    public void testSetInvalidHealth() {
+    public void testSetInvalidHealthNegative() {
         assertThrows(IllegalArgumentException.class, () -> entity.setHealth(-1));
+    }
+
+    @Test
+    public void testSetInvalidHealthMoreThanMaxHealth() {
+        entity.setMaxHealth(150);
+        assertEquals(100, entity.getHealth());
     }
 
     @Test
@@ -110,5 +130,22 @@ public class EntityTest {
         Collider collider = new Collider(new Circle(2,2,2));
         entity.setCollider(collider);
         assertEquals(collider, entity.getCollider());
+    }
+
+    @Test
+    public void testIsAlive() {
+        assertTrue(entity.isAlive());
+    }
+
+    @Test
+    public void testSetAlive() {
+        entity.setAlive(false);
+        assertFalse(entity.isAlive());
+    }
+
+    @Test
+    public void testCollision() throws NoSuchFieldException, IllegalAccessException {
+        entity.onCollision(entity);
+        assertTrue(entity.getClass().getField("collision").getBoolean(entity));
     }
 }

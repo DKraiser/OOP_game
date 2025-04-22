@@ -14,6 +14,8 @@ public class PlayerIsParalysedEvent {
     }
 
     public static void invokeEvent() {
-        targetScreen.onPlayerIsParalysed();
+        if (targetScreen != null) {
+            targetScreen.onPlayerIsParalysed();
+        }
     }
 }

@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import sk.stuba.fiit.entities.Entity;
 import sk.stuba.fiit.interfaces.attack.MeleeAttackingStrategy;
 import sk.stuba.fiit.projectiles.Projectile;
 
@@ -31,6 +32,10 @@ public class ProjectileTest {
         public void takeDamage(int damage) {
 
         }
+
+        @Override
+        public void onCollision(Entity collisionEntity) {}
+
     }
 
     private TestProjectile projectile;
@@ -65,7 +70,6 @@ public class ProjectileTest {
 
     @Test
     public void testClone() {
-        // Create a clone and check if it's a different instance but with the same properties
         Projectile clonedProjectile = projectile.clone();
         assertNotSame(projectile, clonedProjectile);
         assertEquals(projectile.getName(), clonedProjectile.getName());
@@ -95,5 +99,11 @@ public class ProjectileTest {
         MeleeAttackingStrategy mockAttacker = Mockito.mock(MeleeAttackingStrategy.class);
         projectile.setAttacker(mockAttacker);
         assertEquals(mockAttacker, projectile.getAttacker());
+    }
+
+    @Test
+    public void testSetDamage() {
+        projectile.setDamage(5);
+        assertEquals(5, projectile.getDamage());
     }
 }

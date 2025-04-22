@@ -1,7 +1,7 @@
 package sk.stuba.fiit.effects;
 
 import sk.stuba.fiit.entities.Entity;
-import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.entities.Player;
 
 public class RegenerationEffect extends Effect{
     private StringBuilder nameBuilder;

@@ -3,7 +3,7 @@ package sk.stuba.fiit.effects;
 import com.badlogic.gdx.math.Vector2;
 import sk.stuba.fiit.Weapon;
 import sk.stuba.fiit.entities.Entity;
-import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.entities.Player;
 import sk.stuba.fiit.interfaces.Damageable;
 import sk.stuba.fiit.interfaces.attack.RangedAttackingStrategy;
 import sk.stuba.fiit.projectiles.Projectile;
@@ -43,7 +43,7 @@ public class ParalyseEffect extends Effect{
 
     @Override
     public void applyEffect() {
-        RangedAttackingStrategy noAttackStrategy = new TargetRangedAttackingStrategy() {
+        RangedAttackingStrategy noAttackStrategy = new RangedAttackingStrategy() {
             @Override
             public void attack(Vector2 direction, Collection<Projectile> projectileEnvironment, Weapon weapon) { }
 
@@ -52,14 +52,15 @@ public class ParalyseEffect extends Effect{
         };
 
         if (getTarget() instanceof Player) {
-            ((Player) getTarget()).setRangedAttacking(noAttackStrategy);
+            setInitialValue(((Player) getTarget()).getAttackStrategy());
+            ((Player) getTarget()).setAttackStrategy(noAttackStrategy);
         }
     }
 
     @Override
     public void removeEffect() {
         if (getTarget() instanceof Player) {
-            ((Player) getTarget()).setRangedAttacking(new DirectionRangedAttackingStrategy());
+            ((Player) getTarget()).setAttackStrategy((RangedAttackingStrategy) getInitialValue());
         }
     }
 }

@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import sk.stuba.fiit.projectiles.EnemyProjectile;
 import sk.stuba.fiit.projectiles.PlayerProjectile;
 import sk.stuba.fiit.projectiles.Projectile;
 
@@ -58,5 +59,13 @@ public class PlayerProjectileTest {
         projectile.move(deltaTime);
         Vector2 expectedPosition = initialPosition.cpy().add(new Vector2(projectile.getDirection().x * projectile.getSpeed() * deltaTime, projectile.getDirection().y * projectile.getSpeed() * deltaTime));
         assertEquals(expectedPosition, projectile.getPosition());
+    }
+
+    @Test
+    public void testOnCollision() {
+        Projectile enemy = new EnemyProjectile("Enemy Projectile", "Enemy's projectile", null, 100, 100, new Vector2(1, 0), 10.0f, 1, 1);
+        projectile.onCollision(enemy);
+        assertFalse(projectile.isAlive());
+        assertEquals(99, enemy.getHealth());
     }
 }

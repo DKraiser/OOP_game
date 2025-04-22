@@ -6,8 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Logger;
-import org.lwjgl.opengl.GL20;
-import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.entities.Player;
 import sk.stuba.fiit.enums.ScreenType;
 import sk.stuba.fiit.factories.weaponfactories.BasicPlayerWeaponFactory;
 import sk.stuba.fiit.screens.GameScreen;
@@ -20,7 +19,7 @@ import java.util.List;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class MyGame extends Game {
-    public static final boolean TESTMODE = true;
+    public static final boolean TESTMODE = false;
     private static Player defaultplayer;
     private static List<Texture> indisposedTextures;
     private SpriteBatch batch;

@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -20,11 +19,10 @@ import sk.stuba.fiit.MyGame;
 import sk.stuba.fiit.effects.ExtraHealthEffect;
 import sk.stuba.fiit.effects.RegenerationEffect;
 import sk.stuba.fiit.effects.ResistanceEffect;
-import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.entities.Player;
 import sk.stuba.fiit.enums.ScreenType;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 public class ShopScreen implements Screen {
     private final MyGame game;

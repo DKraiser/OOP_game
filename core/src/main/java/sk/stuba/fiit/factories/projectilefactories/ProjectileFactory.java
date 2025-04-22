@@ -46,8 +46,6 @@ public class ProjectileFactory implements Factory<Projectile>, Serializable {
 
         newProjectile.getCollider().setPosition(newProjectile.getPosition().cpy().add(new Vector2(newProjectile.getWidth(), newProjectile.getHeight()).scl(0.25f)));
 
-        //log();
-
         return newProjectile;
     }
 

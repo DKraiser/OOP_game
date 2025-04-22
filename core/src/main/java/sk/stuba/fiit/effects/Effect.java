@@ -61,12 +61,6 @@ public abstract class Effect implements Cloneable, Tickable, Serializable {
     }
 
     public Effect(String name, String description, int level, boolean isFinite, float duration, Entity target) {
-        this.name = name;
-        this.description = description;
-        this.level = level;
-        this.isFinite = isFinite;
-        this.duration = duration;
-        this.remainingTime = duration;
-        this.target = target;
+        this(name, description, level, isFinite, duration, duration, target);
     }
 }

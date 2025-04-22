@@ -36,6 +36,8 @@ public class SpriteExtended extends Sprite implements Serializable {
     }
 
     public SpriteExtended(Sprite sprite) {
-        set(sprite);
+        if (!MyGame.TESTMODE) {
+            set(sprite);
+        }
     }
 }

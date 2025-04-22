@@ -1,7 +1,6 @@
 package sk.stuba.fiit.effects;
 
 import sk.stuba.fiit.entities.Entity;
-import sk.stuba.fiit.entities.player.Player;
 
 public class ExtraHealthEffect extends Effect {
     private final StringBuilder nameBuilder;

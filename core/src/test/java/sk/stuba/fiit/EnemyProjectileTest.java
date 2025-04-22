@@ -7,9 +7,8 @@ import com.badlogic.gdx.math.Vector2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import sk.stuba.fiit.effects.Effect;
-import sk.stuba.fiit.effects.ParalyseEffect;
-import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.effects.ExtraHealthEffect;
+import sk.stuba.fiit.entities.Player;
 import sk.stuba.fiit.events.EnemyKilledEvent;
 import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
 import sk.stuba.fiit.interfaces.Damageable;
@@ -49,16 +48,21 @@ public class EnemyProjectileTest {
     }
 
     @Test
-    public void testTakeDamage() {
+    public void testTakeSmallDamage() {
         int initialHealth = enemyProjectile.getHealth();
         int damage = 30;
 
         enemyProjectile.takeDamage(damage);
         assertEquals(initialHealth - damage, enemyProjectile.getHealth());
+    }
 
-        if (enemyProjectile.getHealth() <= 0) {
-            assertEquals("Dead Enemy Projectile", enemyProjectile.getName());
-        }
+    @Test
+    public void testTakeDamageAndDie() {
+        int initialHealth = enemyProjectile.getHealth();
+        int damage = 100;
+
+        enemyProjectile.takeDamage(damage);
+        assertFalse(enemyProjectile.isAlive());
     }
 
     @Test
@@ -81,14 +85,16 @@ public class EnemyProjectileTest {
 
     @Test
     public void testClone() {
+        enemyProjectile.getEffectHandler().takeEffect(new ExtraHealthEffect(1, false, 1, 1, enemyProjectile));
+
         EnemyProjectile clonedProjectile = (EnemyProjectile) enemyProjectile.clone();
 
-        assertNotSame(enemyProjectile, clonedProjectile);
-        assertEquals(enemyProjectile.getName(), clonedProjectile.getName());
-        assertEquals(enemyProjectile.getDescription(), clonedProjectile.getDescription());
-        assertEquals(enemyProjectile.getHealth(), clonedProjectile.getHealth());
-        assertEquals(enemyProjectile.getMaxHealth(), clonedProjectile.getMaxHealth());
-        assertEquals(enemyProjectile.getSpeed(), clonedProjectile.getSpeed());
+        assertNotSame(clonedProjectile, enemyProjectile);
+        assertEquals(clonedProjectile.getName(), enemyProjectile.getName());
+        assertEquals(clonedProjectile.getDescription(), enemyProjectile.getDescription());
+        assertEquals(clonedProjectile.getHealth(), enemyProjectile.getHealth());
+        assertEquals(clonedProjectile.getMaxHealth(), enemyProjectile.getMaxHealth());
+        assertEquals(clonedProjectile.getSpeed(), enemyProjectile.getSpeed());
 
         assertNotNull(clonedProjectile.getEffectHandler());
         assertEquals(enemyProjectile.getEffectHandler().getEffects().size(), clonedProjectile.getEffectHandler().getEffects().size());
@@ -110,5 +116,22 @@ public class EnemyProjectileTest {
         EffectHandler oldEffectHandler = enemyProjectile.getEffectHandler();
         enemyProjectile.setEffectHandler(new EffectHandler());
         assertNotSame(oldEffectHandler, enemyProjectile.getEffectHandler());
+    }
+
+    @Test
+    public void testOnCollision() {
+        enemyProjectile.onCollision(new Player("P", "Player", null, 1, null, 5, 5, 1, new Timer(10), 10000, new WeaponFactory() {
+            @Override
+            public void adjustProjectileTemplate() {
+
+            }
+
+            @Override
+            public Weapon create(Object... args) {
+                return null;
+            }
+        }));
+
+        assertFalse(enemyProjectile.isAlive());
     }
 }

@@ -23,4 +23,8 @@ public class ResistanceTakingDamageStrategy implements TakingDamageStrategy {
         random = new Random();
         random.setSeed(System.currentTimeMillis());
     }
+
+    public void setRandom(Random random) {
+        this.random = random;
+    }
 }

@@ -21,7 +21,7 @@ import org.lwjgl.opengl.GL20;
 import sk.stuba.fiit.*;
 import sk.stuba.fiit.Timer;
 import sk.stuba.fiit.entities.Spawner;
-import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.entities.Player;
 import sk.stuba.fiit.enums.ScreenType;
 import sk.stuba.fiit.events.EnemyKilledEvent;
 import sk.stuba.fiit.events.PlayerIsParalysedEvent;
@@ -99,10 +99,6 @@ public class GameScreen implements Screen{
 
         waves = new TreeMap<>();
         waveTimer = new Timer(10);
-        addNewWave(new SmallAsteroidWave(5, worldWidth / 2, spawnerEnvironment));
-        addNewWave(new BigAsteroidWave(5, worldWidth / 2, spawnerEnvironment));
-        addNewWave(new UfoWave(3, worldHeight / 2, spawnerEnvironment));
-        currentWave = selectWave(random.nextFloat(0, 1));
 
         try {
             Thread.sleep(500);
@@ -277,6 +273,11 @@ public class GameScreen implements Screen{
 
     @Override
     public void show() {
+        addNewWave(new SmallAsteroidWave(5, worldWidth / 2, spawnerEnvironment));
+        addNewWave(new BigAsteroidWave(5, worldWidth / 2, spawnerEnvironment));
+        addNewWave(new UfoWave(3, worldHeight / 2, spawnerEnvironment));
+        currentWave = selectWave(random.nextFloat(0, 1));
+
         background = new GameObject("Background","Background", new Texture("space_background.jpg"));
         background.setSize(gameViewport.getWorldWidth(), gameViewport.getWorldHeight());
         indisposedTextures.add(background.getTexture());

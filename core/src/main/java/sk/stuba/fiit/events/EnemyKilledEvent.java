@@ -1,6 +1,6 @@
 package sk.stuba.fiit.events;
 
-import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.entities.Player;
 
 public class EnemyKilledEvent {
     private static Player player;
@@ -10,6 +10,8 @@ public class EnemyKilledEvent {
     }
 
     public static void invokeEvent(int price) {
-        player.onEnemyKilled(price);
+        if (player != null) {
+            player.onEnemyKilled(price);
+        }
     }
 }

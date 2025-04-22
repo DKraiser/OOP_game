@@ -34,6 +34,9 @@ public abstract class Projectile extends Entity implements Cloneable{
     }
 
     @Override
+    public abstract void onCollision(Entity collisionEntity);
+
+    @Override
     public abstract Projectile clone();
 
     public Projectile(String name, String description, Texture texture, int health, int maxHealth, Vector2 direction, float speed, int damage) {

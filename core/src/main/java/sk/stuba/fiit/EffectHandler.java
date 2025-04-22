@@ -46,12 +46,12 @@ public class EffectHandler implements Effectable, Cloneable, Serializable {
         EffectHandler newEffectHandler = new EffectHandler();
         List<Effect> newEffects = new ArrayList<>();
 
-        if (effects.size() > 0) {
+        if (!effects.isEmpty()) {
             for (Effect effect : getEffects()) {
                 newEffects.add(effect.clone());
             }
+            newEffectHandler.takeEffect(newEffects);
         }
-        newEffectHandler.takeEffect(newEffects);
 
         return newEffectHandler;
     }

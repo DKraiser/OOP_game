@@ -1,7 +1,7 @@
 package sk.stuba.fiit.effects;
 
 import sk.stuba.fiit.entities.Entity;
-import sk.stuba.fiit.entities.player.Player;
+import sk.stuba.fiit.entities.Player;
 import sk.stuba.fiit.interfaces.TakingDamageStrategy;
 import sk.stuba.fiit.strategies.takingDamage.ResistanceTakingDamageStrategy;
 
@@ -14,7 +14,7 @@ public class ResistanceEffect extends Effect{
 
         nameBuilder = new StringBuilder();
         nameBuilder.append("Resistance ");
-        nameBuilder.append('I' * level);
+        nameBuilder.append("I".repeat(level));
         setName(nameBuilder.toString());
 
         descriptionBuilder = new StringBuilder();
@@ -26,7 +26,7 @@ public class ResistanceEffect extends Effect{
 
     @Override
     public Effect clone() {
-        return new ResistanceEffect(getLevel() ,isFinite(), getDuration(), getRemainingTime(), null);
+        return new ResistanceEffect(getLevel(), isFinite(), getDuration(), getRemainingTime(), null);
     }
 
     @Override

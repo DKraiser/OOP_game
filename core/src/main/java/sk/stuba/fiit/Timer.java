@@ -57,4 +57,9 @@ public class Timer implements Cloneable, Serializable {
     public Timer clone() {
         return new Timer(period, current);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return ((Timer) o).period == period && ((Timer) o).current == current && ((Timer) o).elapsed == elapsed;
+    }
 }

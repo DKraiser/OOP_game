@@ -1,4 +1,4 @@
-package sk.stuba.fiit.entities.player;
+package sk.stuba.fiit.entities;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
@@ -8,7 +8,6 @@ import sk.stuba.fiit.Collider;
 import sk.stuba.fiit.Weapon;
 import sk.stuba.fiit.effects.Effect;
 import sk.stuba.fiit.effects.ParalyseEffect;
-import sk.stuba.fiit.effects.ResistanceEffect;
 import sk.stuba.fiit.events.PlayerIsParalysedEvent;
 import sk.stuba.fiit.factories.weaponfactories.BasicPlayerWeaponFactory;
 import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
@@ -16,7 +15,6 @@ import sk.stuba.fiit.interfaces.*;
 import sk.stuba.fiit.projectiles.EnemyProjectile;
 import sk.stuba.fiit.strategies.attacking.DirectionRangedAttackingStrategy;
 import sk.stuba.fiit.EffectHandler;
-import sk.stuba.fiit.entities.Entity;
 import sk.stuba.fiit.interfaces.attack.RangedAttackingStrategy;
 import sk.stuba.fiit.projectiles.Projectile;
 import sk.stuba.fiit.Timer;
@@ -25,8 +23,6 @@ import sk.stuba.fiit.strategies.takingDamage.StandartTakingDamageStrategy;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Random;
-
-import static java.lang.Math.max;
 
 public class Player extends Entity implements Damageable, Mortal, Tickable, Effectable , Serializable, Cloneable{
     private int balance;
@@ -38,6 +34,7 @@ public class Player extends Entity implements Damageable, Mortal, Tickable, Effe
     private Timer healingTimer;
     private int healingPerInterval;
     private transient Logger logger;
+    private transient Random random;
 
     public Weapon getWeapon() {
         return weapon;
@@ -73,7 +70,7 @@ public class Player extends Entity implements Damageable, Mortal, Tickable, Effe
         return rangedAttacking;
     }
 
-    public void setRangedAttacking(RangedAttackingStrategy rangedAttacking) {
+    public void setAttackStrategy(RangedAttackingStrategy rangedAttacking) {
         this.rangedAttacking = rangedAttacking;
     }
 
@@ -83,6 +80,10 @@ public class Player extends Entity implements Damageable, Mortal, Tickable, Effe
 
     public void setTakingDamage(TakingDamageStrategy takingDamage) {
         this.takingDamage = takingDamage;
+    }
+
+    public void setRandom(Random random) {
+        this.random = random;
     }
 
     @Override
@@ -140,11 +141,9 @@ public class Player extends Entity implements Damageable, Mortal, Tickable, Effe
     @Override
     public void onCollision(Entity collisionTarget) {
         if (collisionTarget instanceof EnemyProjectile) {
-            Random random = new Random();
-            random.setSeed(System.currentTimeMillis());
             if (random.nextFloat(0f, 1f) > 0.9f) {
-                PlayerIsParalysedEvent.invokeEvent();
                 takeEffect(new ParalyseEffect(true, 1.5f, this));
+                PlayerIsParalysedEvent.invokeEvent();
                 logger.info("Paralyse");
             }
         }
@@ -180,14 +179,13 @@ public class Player extends Entity implements Damageable, Mortal, Tickable, Effe
         takingDamage = new StandartTakingDamageStrategy();
 
         logger = new Logger("Player", Logger.DEBUG);
+
+        random = new Random();
+        random.setSeed(System.currentTimeMillis());
     }
 
     @Override
     public Player clone() {
         return new Player(getName(), getDescription(), getTexture(), getHeight(), getPosition().cpy(), getHealth(), getMaxHealth(), getHealingPerInterval(), getHealingTimer().clone(), getBalance(), new BasicPlayerWeaponFactory());
-    }
-
-    public Player() {
-        super();
     }
 }

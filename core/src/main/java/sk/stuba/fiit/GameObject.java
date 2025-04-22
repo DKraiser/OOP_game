@@ -110,8 +110,6 @@ public class GameObject implements Disposable {
         this.rotation = 0;
     }
 
-    public GameObject() { }
-
     @Override
     public void dispose() {
         texture.dispose();
