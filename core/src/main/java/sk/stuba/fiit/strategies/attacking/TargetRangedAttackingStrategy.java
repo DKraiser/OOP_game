@@ -39,6 +39,7 @@ public class TargetRangedAttackingStrategy implements RangedAttackingStrategy {
         Vector2 direction = new Vector2(((Entity) target).getPosition());
         direction.add(new Vector2(((Entity) target).getWidth(), ((Entity) target).getHeight()).scl(0.5f));
         direction.sub(weapon.getPosition());
+        direction.nor();
         weapon.shoot(direction, projectileEnvironment);
     }
 }
