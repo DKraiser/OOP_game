@@ -1,0 +1,16 @@
+sk.stuba.fiit
+sk.stuba.fiit.effects
+sk.stuba.fiit.entities
+sk.stuba.fiit.enums
+sk.stuba.fiit.events
+sk.stuba.fiit.exceptions
+sk.stuba.fiit.factories.projectilefactories
+sk.stuba.fiit.factories.spawnerfactories
+sk.stuba.fiit.factories.weaponfactories
+sk.stuba.fiit.interfaces
+sk.stuba.fiit.interfaces.attack
+sk.stuba.fiit.projectiles
+sk.stuba.fiit.screens
+sk.stuba.fiit.strategies.attacking
+sk.stuba.fiit.strategies.takingDamage
+sk.stuba.fiit.waves

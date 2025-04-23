@@ -24,6 +24,10 @@ import sk.stuba.fiit.enums.ScreenType;
 
 import java.util.List;
 
+/**
+ * Represents the screen where players can purchase effect upgrades.
+ * Allows players to buy upgrades for their character, including health, regeneration, and resistance.
+ */
 public class ShopScreen implements Screen {
     private final MyGame game;
     private SpriteBatch batch;
@@ -42,6 +46,14 @@ public class ShopScreen implements Screen {
     private final EffectUpgrade regenEffectUpgrade;
     private final EffectUpgrade resistanceEffectUpgrade;
 
+    /**
+     * Constructs a ShopScreen.
+     *
+     * @param game              The game instance.
+     * @param player            The player who is purchasing upgrades.
+     * @param batch             The SpriteBatch used for rendering.
+     * @param indisposedTextures List of textures that have already been disposed.
+     */
     public ShopScreen(MyGame game, Player player, SpriteBatch batch, List<Texture> indisposedTextures) {
         this.game = game;
         this.player = player;
@@ -71,6 +83,12 @@ public class ShopScreen implements Screen {
         });
     }
 
+    /**
+     * Adds a row to the upgrade table for a specific effect upgrade.
+     *
+     * @param table        The table to add the row to.
+     * @param effectUpgrade The effect upgrade to be added to the table.
+     */
     private void addEffectUpgradeRow(Table table, EffectUpgrade effectUpgrade) {
         Label nameLabel = new Label(effectUpgrade.getName(), uiSkin);
         Label levelLabel = new Label("Level: " + effectUpgrade.getLevel(), uiSkin);
@@ -102,6 +120,9 @@ public class ShopScreen implements Screen {
         table.add(buyButton).padBottom(20).row();
     }
 
+    /**
+     * Initializes the shop screen, setting up background, UI stage, and input processing.
+     */
     @Override
     public void show() {
         background = new Sprite(new Texture("space_background.jpg"));
@@ -144,6 +165,11 @@ public class ShopScreen implements Screen {
         uiStage.addActor(exitButton);
     }
 
+    /**
+     * Renders the shop screen, drawing the background and UI elements.
+     *
+     * @param deltaTime The time elapsed since the last render.
+     */
     @Override
     public void render(float deltaTime) {
         batch.setProjectionMatrix(uiCamera.combined);
@@ -154,22 +180,39 @@ public class ShopScreen implements Screen {
         uiStage.draw();
     }
 
-    //region
+    /**
+     * Adjusts the screen size when the window is resized.
+     *
+     * @param width  The new width of the screen.
+     * @param height The new height of the screen.
+     */
     @Override
     public void resize(int width, int height) {
         uiViewport.update(width, height, true);
         background.setSize(uiViewport.getWorldWidth(), uiViewport.getWorldHeight());
     }
 
+    /**
+     * Pauses the screen, stopping any ongoing processes.
+     */
     @Override
     public void pause() { }
 
+    /**
+     * Resumes the screen after it was paused.
+     */
     @Override
     public void resume() { }
 
+    /**
+     * Hides the screen, cleaning up resources if necessary.
+     */
     @Override
     public void hide() { }
 
+    /**
+     * Disposes of the screen resources when the screen is no longer needed.
+     */
     @Override
     public void dispose() {
         if (uiStage != null) {
@@ -177,5 +220,4 @@ public class ShopScreen implements Screen {
             uiSkin.dispose();
         }
     }
-    //endregion
 }

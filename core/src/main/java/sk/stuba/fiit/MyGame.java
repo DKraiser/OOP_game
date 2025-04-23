@@ -17,11 +17,20 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
+/**
+ * Main entry point of the game. Extends {@link Game} and implements {@link com.badlogic.gdx.ApplicationListener}.
+ * Handles screen transitions, resource management, and player serialization.
+ */
 public class MyGame extends Game {
+
+    /**
+     * Global test mode flag to control conditional logic.
+     */
     public static final boolean TESTMODE = true;
+
     private static Player defaultplayer;
     private static List<Texture> indisposedTextures;
+
     private SpriteBatch batch;
     private Player player;
 
@@ -29,24 +38,47 @@ public class MyGame extends Game {
     private RestartScreen restartScreen;
     private ShopScreen shopScreen;
 
+    /**
+     * Returns the current player instance.
+     *
+     * @return current player
+     */
     public Player getPlayer() {
         return player;
     }
 
+    /**
+     * Sets the player instance.
+     *
+     * @param player the player to set
+     */
     public void setPlayer(Player player) {
         this.player = player;
     }
 
+    /**
+     * Reloads the player by cloning the default player.
+     */
     public void reloadPlayer() {
         player = defaultplayer.clone();
     }
 
+    /**
+     * Initializes the game: sets up logging, loads the default player, attempts to deserialize player data,
+     * and creates all game screens.
+     */
     @Override
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
-        indisposedTextures = new ArrayList<Texture>();
-        defaultplayer = new Player("P", "Player", new Texture("earth.png"), 1, null, 5, 5, 1, new Timer(10), 10000, new BasicPlayerWeaponFactory());
+        indisposedTextures = new ArrayList<>();
+        defaultplayer = new Player(
+            "P", "Player", new Texture("earth.png"), 1,
+            null, 5, 5, 1,
+            new Timer(10), 0,
+            new BasicPlayerWeaponFactory()
+        );
+
         batch = new SpriteBatch();
         try {
             player = deserializePlayer();
@@ -63,11 +95,17 @@ public class MyGame extends Game {
         setScreen(gameScreen);
     }
 
+    /**
+     * Delegates rendering to the currently active screen.
+     */
     @Override
     public void render() {
         super.render();
     }
 
+    /**
+     * Disposes of all disposable resources (textures, player, sprite batch).
+     */
     @Override
     public void dispose() {
         for (Texture texture : indisposedTextures) {
@@ -77,6 +115,13 @@ public class MyGame extends Game {
         batch.dispose();
     }
 
+    /**
+     * Deserializes the player object from a file.
+     *
+     * @return the deserialized {@link Player}
+     * @throws IOException if an I/O error occurs
+     * @throws ClassNotFoundException if the class of the serialized object cannot be found
+     */
     private Player deserializePlayer() throws IOException, ClassNotFoundException {
         FileInputStream fis = new FileInputStream("serialized/player.json");
         ObjectInputStream ois = new ObjectInputStream(fis);
@@ -86,14 +131,24 @@ public class MyGame extends Game {
         return deserialiazedPlayer;
     }
 
+    /**
+     * Changes the current screen based on the given {@link ScreenType}.
+     *
+     * @param screenType the screen type to switch to
+     */
     public void changeScreen(ScreenType screenType) {
-        setScreen(switch(screenType) {
+        setScreen(switch (screenType) {
             case GAME -> gameScreen;
             case SHOP -> shopScreen;
             case RESTART -> restartScreen;
         });
     }
 
+    /**
+     * Reloads the specified screen by disposing and recreating it.
+     *
+     * @param screenType the screen type to reload
+     */
     public void reloadScreen(ScreenType screenType) {
         switch (screenType) {
             case GAME:

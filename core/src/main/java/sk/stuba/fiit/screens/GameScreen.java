@@ -70,6 +70,13 @@ public class GameScreen implements Screen{
     private List<Spawner> tempSpawnerEnvironment;
     private ShapeRenderer shapeRenderer;
 
+    /**
+     * Constructs the GameScreen instance, initializes game components, and sets up the environment.
+     * @param game The game instance that is running.
+     * @param player The player instance who is playing the game.
+     * @param batch The SpriteBatch used for rendering game elements.
+     * @param indisposedTextures A list of textures that are not yet disposed.
+     */
     public GameScreen(MyGame game, Player player, SpriteBatch batch, List<Texture> indisposedTextures) {
         this.game = game;
         PlayerIsParalysedEvent.setScreen(this);
@@ -109,6 +116,9 @@ public class GameScreen implements Screen{
         logger.info("Initialized");
     }
 
+    /**
+     * Spawns a new wave of enemies using a separate thread in order not to block the ui.
+     */
     private void spawnWave() {
         new Thread(() -> {
             if (currentWave != null) {
@@ -120,6 +130,10 @@ public class GameScreen implements Screen{
         }).start();
     }
 
+    /**
+     * Moves projectiles on the screen based on the delta time and removes those that go out of bounds.
+     * @param deltaTime The delta time (time elapsed) for the current frame.
+     */
     private void moveProjectilesOnScreen(float deltaTime) {
         if (!projectileEnvironment.isEmpty()) {
             for (Projectile projectile : projectileEnvironment) {
@@ -132,6 +146,9 @@ public class GameScreen implements Screen{
         }
     }
 
+    /**
+     * Checks for collisions between projectiles and other game objects (spawners, player, etc.) and invokes their events.
+     */
     private void checkCollisionsOnScreen() {
         if (!projectileEnvironment.isEmpty()) {
             for (Projectile projectile : projectileEnvironment) {
@@ -156,6 +173,9 @@ public class GameScreen implements Screen{
         }
     }
 
+    /**
+     * Removes dead objects (projectiles and spawners) from their environments.
+     */
     private void removeDeadObjects() {
         if (!projectileEnvironment.isEmpty()) {
             tempProjectileEnvironment.clear();
@@ -191,6 +211,10 @@ public class GameScreen implements Screen{
         }
     }
 
+    /**
+     * Draws the game elements (player, projectiles, spawners, etc.) on the screen.
+     * @param deltaTime The delta time (time elapsed) for the current frame.
+     */
     private void drawScreen(float deltaTime) {
         batch.begin();
         background.getSprite().draw(batch);
@@ -221,6 +245,9 @@ public class GameScreen implements Screen{
         uiStage.draw();
     }
 
+    /**
+     * Updates the screen state every frame.
+     */
     @Override
     public void render(float deltaTime) {
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -288,6 +315,10 @@ public class GameScreen implements Screen{
         uiStage.dispose();
     }
 
+
+    /**
+     * Initializes the user interface.
+     */
     @Override
     public void show() {
         waves.addWave(new SmallAsteroidWave(5, worldWidth / 2, spawnerEnvironment));
@@ -374,11 +405,18 @@ public class GameScreen implements Screen{
         uiStage.addActor(shopButton);
     }
 
+
+    /**
+     * Handles actions when the player is dead, showing a game over screen or saving data.
+     */
     public void onPlayerIsDead() throws InterruptedException{
         Thread.sleep(650);
         game.changeScreen(ScreenType.RESTART);
     }
 
+    /**
+     * Handles actions when the player is paralysed, showing an info label.
+     */
     public void onPlayerIsParalysed() {
         Thread notifyingAboutParalyseThread = new Thread(() -> {
             Label paralyseLabel = new Label("Paralyse", uiSkin);

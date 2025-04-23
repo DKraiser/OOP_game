@@ -11,6 +11,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Random;
 
+/**
+ * Represents a wave of spawners in the game. The wave consists of multiple spawners that are summoned in a circular area
+ * and can be retracted (removed) when needed. The wave's rarity, size, and spawn radius are defined by the parameters.
+ */
 public abstract class Wave {
     protected int waveSize;
     protected float radius;
@@ -23,6 +27,10 @@ public abstract class Wave {
     protected Random random;
     protected Logger logger;
 
+    /**
+     * Summons a new set of spawners within a defined radius and adds them to the wave's environment.
+     * Each spawner is positioned randomly within the radius.
+     */
     public void summon() {
         float x;
         for (int i = 0; i < waveSize; i++) {
@@ -46,6 +54,9 @@ public abstract class Wave {
         spawnerEnvironment.addAll(summons);
     }
 
+    /**
+     * Retracts (removes) all summoned spawners by setting their "alive" status to false and clearing the summons collection.
+     */
     public void retract() {
         for (Spawner spawner : summons) {
             spawner.setAlive(false);
@@ -53,14 +64,31 @@ public abstract class Wave {
         summons.clear();
     }
 
+    /**
+     * Gets the rarity of the wave.
+     *
+     * @return the {@link WaveRarity} of the wave
+     */
     public WaveRarity getWaveRarity() {
         return waveRarity;
     }
 
+    /**
+     * Sets the rarity of the wave.
+     *
+     * @param waveRarity the {@link WaveRarity} to set for the wave
+     */
     public void setWaveRarity(WaveRarity waveRarity) {
         this.waveRarity = waveRarity;
     }
 
+    /**
+     * Constructs a new wave with the specified parameters. Initializes the random generator, summons collection, and logger.
+     *
+     * @param waveSize the number of spawners to summon
+     * @param radius the radius in which the spawners will be summoned
+     * @param spawnerEnvironment the collection of spawners in the environment where the wave will be added
+     */
     public Wave(int waveSize, float radius, Collection<Spawner> spawnerEnvironment) {
         this.waveSize = waveSize;
         this.radius = radius;
