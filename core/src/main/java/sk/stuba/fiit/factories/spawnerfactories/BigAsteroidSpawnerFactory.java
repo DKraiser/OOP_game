@@ -1,4 +1,4 @@
-package sk.stuba.fiit.factories.enemyfactories;
+package sk.stuba.fiit.factories.spawnerfactories;
 
 import sk.stuba.fiit.entities.Spawner;
 import sk.stuba.fiit.factories.weaponfactories.BigAsteroidEnemyWeaponFactory;

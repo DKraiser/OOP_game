@@ -1,4 +1,4 @@
-package sk.stuba.fiit;
+package sk.stuba.fiit.projectiles;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
@@ -6,9 +6,9 @@ import com.badlogic.gdx.math.Vector2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import sk.stuba.fiit.Collider;
 import sk.stuba.fiit.entities.Entity;
 import sk.stuba.fiit.interfaces.attack.MeleeAttackingStrategy;
-import sk.stuba.fiit.projectiles.Projectile;
 
 import static org.junit.jupiter.api.Assertions.*;
 

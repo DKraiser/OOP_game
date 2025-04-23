@@ -2,7 +2,7 @@ package sk.stuba.fiit.waves;
 
 import sk.stuba.fiit.entities.Spawner;
 import sk.stuba.fiit.enums.WaveRarity;
-import sk.stuba.fiit.factories.enemyfactories.SmallAsteroidSpawnerFactory;
+import sk.stuba.fiit.factories.spawnerfactories.SmallAsteroidSpawnerFactory;
 
 import java.util.Collection;
 

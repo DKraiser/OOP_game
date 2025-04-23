@@ -1,12 +1,10 @@
-package sk.stuba.fiit;
+package sk.stuba.fiit.projectiles;
 
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import sk.stuba.fiit.projectiles.EnemyProjectile;
-import sk.stuba.fiit.projectiles.PlayerProjectile;
-import sk.stuba.fiit.projectiles.Projectile;
+import sk.stuba.fiit.Collider;
 
 import static org.junit.jupiter.api.Assertions.*;
 

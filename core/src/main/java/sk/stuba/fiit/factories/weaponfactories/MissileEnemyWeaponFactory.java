@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import sk.stuba.fiit.Collider;
+import sk.stuba.fiit.MyGame;
 import sk.stuba.fiit.Weapon;
 import sk.stuba.fiit.factories.projectilefactories.EnemyProjectileFactory;
 import sk.stuba.fiit.projectiles.EnemyProjectile;
@@ -19,7 +20,7 @@ public class MissileEnemyWeaponFactory extends WeaponFactory {
 
     @Override
     public void adjustProjectileTemplate() {
-        projectileTemplate = new EnemyProjectile("", "", new Texture("missile.png"), 5, 5, null, 5f, 2, 5);
+        projectileTemplate = new EnemyProjectile("Fast missile from UFO's weapon", "Fast, highly damaging piece of... metal", MyGame.TESTMODE ? null : new Texture("missile.png"), 5, 5, null, 5f, 2, 10);
         projectileTemplate.setSize(0.5f,0.5f);
         projectileTemplate.setOrigin(projectileTemplate.getWidth() / 2, projectileTemplate.getHeight() / 2);
 

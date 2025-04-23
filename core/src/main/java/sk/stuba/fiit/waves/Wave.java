@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Logger;
 import sk.stuba.fiit.entities.Spawner;
 import sk.stuba.fiit.enums.WaveRarity;
-import sk.stuba.fiit.factories.enemyfactories.SpawnerFactory;
+import sk.stuba.fiit.factories.spawnerfactories.SpawnerFactory;
 import sk.stuba.fiit.screens.GameScreen;
 
 import java.util.ArrayList;

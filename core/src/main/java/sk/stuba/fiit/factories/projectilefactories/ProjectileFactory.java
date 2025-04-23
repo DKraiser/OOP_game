@@ -1,7 +1,6 @@
 package sk.stuba.fiit.factories.projectilefactories;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Logger;
 import sk.stuba.fiit.interfaces.Factory;
 import sk.stuba.fiit.projectiles.Projectile;
 
@@ -14,23 +13,15 @@ public class ProjectileFactory implements Factory<Projectile>, Serializable {
     protected float rotation;
     protected float radiusOfAttacker;
     protected Vector2 positionOfAttacker;
-    protected transient final Logger logger;
 
+    public Vector2 getPositionOfAttacker() { return positionOfAttacker; }
     public void setPositionOfAttacker(Vector2 positionOfAttacker) {
         this.positionOfAttacker = positionOfAttacker;
     }
 
+    public float getRadiusOfAttacker() { return radiusOfAttacker; }
     public void setRadiusOfAttacker(float radiusOfAttacker) {
         this.radiusOfAttacker = radiusOfAttacker;
-    }
-
-    public void log()
-    {
-        if (logger == null)
-            return;
-        logger.debug("Projectile Position: " + newProjectile.getPosition());
-        logger.debug("Projectile Direction: " + directionVector);
-        logger.debug("Projectile Rotation: " + newProjectile.getRotation());
     }
 
     @Override
@@ -53,6 +44,5 @@ public class ProjectileFactory implements Factory<Projectile>, Serializable {
         this.projectileTemplate = projectileTemplate;
         this.radiusOfAttacker = radiusOfAttacker;
         this.positionOfAttacker = positionOfAttacker;
-        logger = new Logger("PlayerProjectileFactory", Logger.DEBUG);
     }
 }

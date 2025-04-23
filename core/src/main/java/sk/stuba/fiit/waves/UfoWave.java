@@ -1,10 +1,8 @@
 package sk.stuba.fiit.waves;
 
-import com.badlogic.gdx.math.Vector2;
 import sk.stuba.fiit.entities.Spawner;
 import sk.stuba.fiit.enums.WaveRarity;
-import sk.stuba.fiit.factories.enemyfactories.UfoSpawnerFactory;
-import sk.stuba.fiit.screens.GameScreen;
+import sk.stuba.fiit.factories.spawnerfactories.UfoSpawnerFactory;
 
 import java.util.Collection;
 

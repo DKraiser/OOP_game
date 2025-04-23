@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import sk.stuba.fiit.Collider;
+import sk.stuba.fiit.MyGame;
 import sk.stuba.fiit.Weapon;
 import sk.stuba.fiit.factories.projectilefactories.PlayerProjectileFactory;
 import sk.stuba.fiit.projectiles.PlayerProjectile;
@@ -20,7 +21,7 @@ public class BasicPlayerWeaponFactory extends WeaponFactory {
 
     @Override
     public void adjustProjectileTemplate() {
-        projectileTemplate = new PlayerProjectile("", "", new Texture("basic_bullet.png"), 1, 1, null, 10f, 1);
+        projectileTemplate = new PlayerProjectile("Basic projectile from player's weapon", "Basic projectile from player's weapon", MyGame.TESTMODE ? null : new Texture("basic_bullet.png"), 1, 1, null, 10f, 1);
         projectileTemplate.setSize(0.5f,0.5f);
         projectileTemplate.setOrigin(projectileTemplate.getWidth() / 2, projectileTemplate.getHeight() / 2);
         projectileTemplate.setCollider(new Collider(new Circle(new Vector2(projectileTemplate.getPosition()).add(new Vector2(projectileTemplate.getWidth(), projectileTemplate.getHeight()).scl(0.5f)), projectileTemplate.getHeight() / 4)));

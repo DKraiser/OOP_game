@@ -12,7 +12,7 @@ public class RegenerationEffect extends Effect{
 
         nameBuilder = new StringBuilder();
         nameBuilder.append("Regeneration ");
-        nameBuilder.append('I' * level);
+        nameBuilder.append("I".repeat(level));
         setName(nameBuilder.toString());
 
         descriptionBuilder = new StringBuilder();

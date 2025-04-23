@@ -1,4 +1,4 @@
-package sk.stuba.fiit.factories.enemyfactories;
+package sk.stuba.fiit.factories.spawnerfactories;
 
 import sk.stuba.fiit.Timer;
 import sk.stuba.fiit.entities.Entity;
@@ -18,7 +18,7 @@ public abstract class SpawnerFactory implements Factory<Entity> {
     public Spawner create(Object... args) {
         newSpawner = spawnerTemplate.clone();
         newSpawner.setWeapon(weaponFactory.create());
-        newSpawner.setSpawnTimer(new Timer(rand.nextFloat(5, 7), rand.nextFloat(0, 3)));
+        newSpawner.setSpawnTimer(new Timer(rand.nextFloat(3, 5), rand.nextFloat(0, 3)));
         return newSpawner;
     }
 

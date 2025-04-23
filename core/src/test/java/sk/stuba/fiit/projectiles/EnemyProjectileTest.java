@@ -1,4 +1,4 @@
-package sk.stuba.fiit;
+package sk.stuba.fiit.projectiles;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
@@ -7,12 +7,15 @@ import com.badlogic.gdx.math.Vector2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import sk.stuba.fiit.Collider;
+import sk.stuba.fiit.EffectHandler;
+import sk.stuba.fiit.Timer;
+import sk.stuba.fiit.Weapon;
 import sk.stuba.fiit.effects.ExtraHealthEffect;
 import sk.stuba.fiit.entities.Player;
 import sk.stuba.fiit.events.EnemyKilledEvent;
 import sk.stuba.fiit.factories.weaponfactories.WeaponFactory;
 import sk.stuba.fiit.interfaces.Damageable;
-import sk.stuba.fiit.projectiles.EnemyProjectile;
 
 import static org.junit.jupiter.api.Assertions.*;
 
