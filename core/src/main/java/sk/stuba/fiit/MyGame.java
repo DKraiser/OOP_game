@@ -26,7 +26,7 @@ public class MyGame extends Game {
     /**
      * Global test mode flag to control conditional logic.
      */
-    public static final boolean TESTMODE = true;
+    public static final boolean TESTMODE = false;
 
     private static Player defaultplayer;
     private static List<Texture> indisposedTextures;

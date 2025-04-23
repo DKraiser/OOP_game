@@ -19,8 +19,8 @@ TextButtonStyle: {
 	toggle: { parent: default, checked: default-round-down, downFontColor: red }
 },
 ImageButtonStyle: {
-  default: { parent: default, font: default-font, fontColor: white, disabledFontColor: gray },
-  toggle: { parent: default, checked: default-round-down, downFontColor: red }
+  default: { parent: default },
+  toggle: { parent: default, checked: default-round-down }
 },
 ScrollPaneStyle: {
 	default: { vScroll: default-scroll, hScrollKnob: default-round-large, background: default-rect, hScroll: default-scroll, vScrollKnob: default-round-large }
