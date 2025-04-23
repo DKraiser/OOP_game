@@ -53,8 +53,12 @@ public abstract class Wave {
         summons.clear();
     }
 
-    public WaveRarity getRarity() {
+    public WaveRarity getWaveRarity() {
         return waveRarity;
+    }
+
+    public void setWaveRarity(WaveRarity waveRarity) {
+        this.waveRarity = waveRarity;
     }
 
     public Wave(int waveSize, float radius, Collection<Spawner> spawnerEnvironment) {
@@ -62,7 +66,7 @@ public abstract class Wave {
         this.radius = radius;
         this.spawnerEnvironment = spawnerEnvironment;
 
-            summons = new ArrayList<>();
+        summons = new ArrayList<>();
         random = new Random();
         random.setSeed(System.currentTimeMillis());
         logger = new Logger(this.getClass().getName(), Logger.DEBUG);

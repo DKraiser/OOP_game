@@ -25,6 +25,7 @@ public class UfoSpawnerFactory extends SpawnerFactory{
         newSpawner = spawnerTemplate.clone();
         newSpawner.setWeapon(weaponFactory.create());
         newSpawner.setSpawnTimer(new Timer(rand.nextFloat(5, 7), rand.nextFloat(0, 3)));
+        newSpawner.setCollider(new Collider(new Circle(new Vector2(0, 0), spawnerTemplate.getHeight() / 2)));
         return newSpawner;
     }
 }

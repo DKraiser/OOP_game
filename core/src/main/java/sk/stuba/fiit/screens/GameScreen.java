@@ -62,7 +62,7 @@ public class GameScreen implements Screen{
     private Player player;
 
     private Wave currentWave;
-    private Map<Float, Wave> waves;
+    private WaveCollection waves;
     private Timer waveTimer;
     private List<Projectile> projectileEnvironment;
     private List<Projectile> tempProjectileEnvironment;
@@ -97,7 +97,7 @@ public class GameScreen implements Screen{
         spawnerEnvironment = new ArrayList<Spawner>();
         tempSpawnerEnvironment = new ArrayList<Spawner>();
 
-        waves = new TreeMap<>();
+        waves = new WaveCollection();
         waveTimer = new Timer(10);
 
         try {
@@ -109,32 +109,18 @@ public class GameScreen implements Screen{
         logger.info("Initialized");
     }
 
-    @Override
-    public void render(float deltaTime) {
-        Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
+    private void spawnWave() {
+        new Thread(() -> {
+            if (currentWave != null) {
+                currentWave.retract();
+            }
+            currentWave = waves.getWave(random.nextFloat(0, 1));
 
-        batch.setProjectionMatrix(gameCamera.combined);
-        shapeRenderer.setProjectionMatrix(gameCamera.combined);
+            currentWave.summon();
+        }).start();
+    }
 
-        //Spawn wave
-        waveTimer.tick(deltaTime);
-        if (waveTimer.isElapsed() || spawnerEnvironment.isEmpty()) {
-            new Thread(() -> {
-                if (currentWave != null)
-                    currentWave.retract();
-                currentWave = selectWave(random.nextFloat(0, 1));
-
-                currentWave.summon();
-            }).start();
-        }
-
-        for (Spawner spawner : spawnerEnvironment) {
-                spawner.tick(deltaTime);
-            spawner.attack(player, projectileEnvironment);
-        }
-        player.tick(deltaTime);
-
-        //Move projectile
+    private void moveProjectilesOnScreen(float deltaTime) {
         if (!projectileEnvironment.isEmpty()) {
             for (Projectile projectile : projectileEnvironment) {
                 projectile.move(deltaTime);
@@ -144,8 +130,9 @@ public class GameScreen implements Screen{
                 }
             }
         }
+    }
 
-        //Detect collisions
+    private void checkCollisionsOnScreen() {
         if (!projectileEnvironment.isEmpty()) {
             for (Projectile projectile : projectileEnvironment) {
                 for (Projectile collisionProjectile : projectileEnvironment) {
@@ -167,8 +154,9 @@ public class GameScreen implements Screen{
                 }
             }
         }
+    }
 
-        //Remove objects
+    private void removeDeadObjects() {
         if (!projectileEnvironment.isEmpty()) {
             tempProjectileEnvironment.clear();
             tempProjectileEnvironment.addAll(projectileEnvironment);
@@ -185,6 +173,7 @@ public class GameScreen implements Screen{
                 projectileEnvironment.addAll(tempProjectileEnvironment);
             }
         }
+
         if (!spawnerEnvironment.isEmpty()) {
             tempSpawnerEnvironment.clear();
             tempSpawnerEnvironment.addAll(spawnerEnvironment);
@@ -200,17 +189,9 @@ public class GameScreen implements Screen{
                 spawnerEnvironment.addAll(tempSpawnerEnvironment);
             }
         }
+    }
 
-        if (!player.isAlive()) {
-            try {
-                onPlayerIsDead();
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-                logger.error(e.getStackTrace().toString());
-            }
-        }
-
-        //Draw
+    private void drawScreen(float deltaTime) {
         batch.begin();
         background.getSprite().draw(batch);
         player.getSprite().draw(batch);
@@ -238,6 +219,42 @@ public class GameScreen implements Screen{
         ((Label)((Table)uiStage.getActors().get(0)).getChild(0)).setText("HP: " + player.getHealth() + "/" + player.getMaxHealth());
         ((Label)((Table)uiStage.getActors().get(0)).getChild(1)).setText("Balance: " + player.getBalance());
         uiStage.draw();
+    }
+
+    @Override
+    public void render(float deltaTime) {
+        Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        batch.setProjectionMatrix(gameCamera.combined);
+        shapeRenderer.setProjectionMatrix(gameCamera.combined);
+
+        waveTimer.tick(deltaTime);
+        if (waveTimer.isElapsed() || spawnerEnvironment.isEmpty()) {
+            spawnWave();
+        }
+
+        for (Spawner spawner : spawnerEnvironment) {
+                spawner.tick(deltaTime);
+            spawner.attack(player, projectileEnvironment);
+        }
+        player.tick(deltaTime);
+
+        moveProjectilesOnScreen(deltaTime);
+
+        checkCollisionsOnScreen();
+
+        removeDeadObjects();
+
+        if (!player.isAlive()) {
+            try {
+                onPlayerIsDead();
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+                logger.error(e.getStackTrace().toString());
+            }
+        }
+
+        drawScreen(deltaTime);
 
         gameCamera.update();
     }
@@ -273,10 +290,10 @@ public class GameScreen implements Screen{
 
     @Override
     public void show() {
-        addNewWave(new SmallAsteroidWave(5, worldWidth / 2, spawnerEnvironment));
-        addNewWave(new BigAsteroidWave(5, worldWidth / 2, spawnerEnvironment));
-        addNewWave(new UfoWave(3, worldHeight / 2, spawnerEnvironment));
-        currentWave = selectWave(random.nextFloat(0, 1));
+        waves.addWave(new SmallAsteroidWave(5, worldWidth / 2, spawnerEnvironment));
+        waves.addWave(new BigAsteroidWave(5, worldWidth / 2, spawnerEnvironment));
+        waves.addWave(new UfoWave(3, worldHeight / 2, spawnerEnvironment));
+        currentWave = waves.getWave(random.nextFloat(0, 1));
 
         background = new GameObject("Background","Background", new Texture("space_background.jpg"));
         background.setSize(gameViewport.getWorldWidth(), gameViewport.getWorldHeight());
@@ -376,42 +393,6 @@ public class GameScreen implements Screen{
             uiStage.getActors().removeValue(paralyseLabel, true);
         });
         notifyingAboutParalyseThread.start();
-    }
-
-    private void calculateWaveSelectionFloats() {
-        float sum = 0;
-        int used = 0;
-        Map.Entry<Float, Wave> entry;
-        Map<Float, Wave> recalculatedWaves = new TreeMap<>();
-
-        Iterator<Map.Entry<Float, Wave>> entryIterator = waves.entrySet().iterator();
-        while (entryIterator.hasNext()) {
-            entry = entryIterator.next();
-            sum += entry.getValue().getRarity().ordinal() + 1;
-        }
-
-        entryIterator = waves.entrySet().iterator();
-        while (entryIterator.hasNext() && used < sum) {
-            entry = entryIterator.next();
-            used += entry.getValue().getRarity().ordinal() + 1;
-            recalculatedWaves.put(used / sum, entry.getValue());
-        }
-        waves.clear();
-        waves = recalculatedWaves;
-    }
-
-    private void addNewWave(Wave wave) {
-        waves.put((float) waves.size() * (-1), wave);
-        calculateWaveSelectionFloats();
-    }
-
-    private Wave selectWave(float selector) {
-        for (float s : waves.keySet()) {
-            if (s > selector) {
-                return waves.get(s);
-            }
-        }
-        return null;
     }
     //endregion
 }
